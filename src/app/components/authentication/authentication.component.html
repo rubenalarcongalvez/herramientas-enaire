@@ -19,7 +19,11 @@
             </section>
             
             @if (error()) {
-                <p-message severity="error" class="w-full" closable>Contraseña incorrecta</p-message>
+                <p-message severity="error" class="w-full">Contraseña incorrecta</p-message>
+            }
+            
+            @if (intentosFallidos() > 1) {
+                <img src="decepcion.gif" alt="GIF decepcion" class="w-full h-auto"/>
             }
         </div>
     </form>

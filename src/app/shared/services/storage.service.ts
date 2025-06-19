@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Firestore } from '@angular/fire/firestore';
-import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, query, setDoc, where } from 'firebase/firestore';
+import { doc, docData, Firestore, getDoc, setDoc } from '@angular/fire/firestore';
 import { Usuario } from '../interfaces/usuario';
-import { from, map, Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { Proyecto } from '../interfaces/proyecto';
 
 const USER_KEY = 'auth-user';
 
@@ -43,7 +43,33 @@ export class StorageService {
   =            Database management            =
   =============================================*/
 
-   
+  async existeDocumento(ruta: string): Promise<boolean> {
+    const [coleccion, id] = ruta.split('/');
+    if (!coleccion || !id) {
+      throw new Error('Contraseña incorrecta');
+    }
+  
+    const ref = doc(this.firestore, coleccion, id);
+    const snap = await getDoc(ref);
+    return snap.exists();
+  }
+
+  /* Obtener el proyecto con cambios a tiempo real */
+  getProyecto(contrasenaAcceso: string): Observable<Proyecto> {
+    const ruta = `herramientas-enaire/${contrasenaAcceso}`;
+
+    const ref = doc(this.firestore, ruta);
+
+    return docData(ref) as Observable<Proyecto>;
+  }
+
+  /**
+   * @description Crear o modificar un documento por direccion
+   */
+  setDocumentByAddress(address: string, data: any): Promise<void> {
+    const docRef = doc(this.firestore, address);
+    return setDoc(docRef, data);
+  }
   
   /*=====  Final de Database management  ======*/
 }
