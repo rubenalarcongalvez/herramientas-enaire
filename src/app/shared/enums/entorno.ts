@@ -1,4 +1,4 @@
-export enum Entorno {
+export enum EntornoEnum {
   DES = 'DES',
   PRE = 'PRE',
   PRO = 'PRO'

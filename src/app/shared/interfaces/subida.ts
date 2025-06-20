@@ -1,15 +1,15 @@
-import { Entorno } from "../enums/entorno";
-import { TipoElemento } from "../enums/tipo-elemento";
+import { EntornoEnum } from "../enums/entorno";
+import { TipoElementoEnum } from "../enums/tipo-elemento";
 import { Usuario } from "./usuario";
 
 export interface Subida {
-    entorno: Entorno;
+    entorno: EntornoEnum;
     fechaSubida?: Date;
-    elementosSubidos?: ElementoSubido[]
+    elementosSubida?: ElementoSubida[]
 }
 
-export interface ElementoSubido {
-    tipo: TipoElemento; // dist, war, ear...
+export interface ElementoSubida {
+    tipo: TipoElementoEnum; // dist, war, ear...
     moduloSubido: string;
     completado: boolean;
     usuariosSubida?: Usuario[];

@@ -24,19 +24,20 @@ export class AppComponent {
   constructor(private storageService: StorageService) {}
 
   ngOnInit() {
-    const contrasenaAcceso = localStorage.getItem('contrasenaAcceso');
+    const contrasenaAcceso = localStorage.getItem('contrasenaAcceso') + '/sprints/42';
     if (contrasenaAcceso) {
-      this.storageService.getProyecto(contrasenaAcceso).subscribe({
-        next: (resp) => {
+      this.storageService.existeDocumento(`herramientas-enaire/${contrasenaAcceso}`).then((resp) => {
+        if (resp) {
           sessionStorage.setItem('contrasenaAcceso', contrasenaAcceso);
-          this.cargado.set(true);
-        }, error: (err) => {
-          console.error(err);
+        } else {
           sessionStorage.removeItem('contrasenaAcceso');
           sessionStorage.removeItem('contrasenaAdmin');
-          this.cargado.set(true);
         }
-      });
+      }).catch((err) => {
+        console.error(err);
+        sessionStorage.removeItem('contrasenaAcceso');
+        sessionStorage.removeItem('contrasenaAdmin');
+      }).finally(() => this.cargado.set(true));
     } else {
       this.cargado.set(true);
     }

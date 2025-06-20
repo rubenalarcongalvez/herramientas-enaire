@@ -1,6 +1,7 @@
 export interface Usuario {
-    email: string,
     // token: string,
+    email?: string,
     nombre: string,
     alias: string, // Mote carinoso
+    cumpleanos: Date
 }

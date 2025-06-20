@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { doc, docData, Firestore, getDoc, setDoc } from '@angular/fire/firestore';
 import { Usuario } from '../interfaces/usuario';
 import { Observable, throwError } from 'rxjs';
@@ -10,6 +10,8 @@ const USER_KEY = 'auth-user';
   providedIn: 'root',
 })
 export class StorageService {
+  sprintSeleccionado = signal<number | null>(null);
+
   constructor(private firestore: Firestore) {}
 
   clean(): void {
@@ -54,8 +56,8 @@ export class StorageService {
     return snap.exists();
   }
 
-  /* Obtener el proyecto con cambios a tiempo real */
-  getProyecto(contrasenaAcceso: string): Observable<Proyecto> {
+  /* Obtener el documento con cambios a tiempo real */
+  getDocumentByAdress(contrasenaAcceso: string): Observable<any> {
     const ruta = `herramientas-enaire/${contrasenaAcceso}`;
 
     const ref = doc(this.firestore, ruta);

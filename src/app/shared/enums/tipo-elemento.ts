@@ -1,4 +1,4 @@
-export enum TipoElemento {
+export enum TipoElementoEnum {
   dist = 'dist',
   war = 'war',
   ear = 'ear'
