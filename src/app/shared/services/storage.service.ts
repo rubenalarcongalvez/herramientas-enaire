@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { collection, collectionData, doc, docData, Firestore, getDoc, limit, orderBy, query, setDoc, where } from '@angular/fire/firestore';
+import { addDoc, collection, collectionData, deleteDoc, doc, docData, Firestore, getDoc, limit, orderBy, query, setDoc, Timestamp, where } from '@angular/fire/firestore';
 import { Usuario } from '../interfaces/usuario';
 import { map, Observable } from 'rxjs';
 
@@ -85,27 +85,83 @@ export class StorageService {
   }
 
   /* Obtener el documento con cambios a tiempo real */
-  getDocumentByAdress(url: string): Observable<any> {
+  getDocumentByAddress(url: string): Observable<any> {
     const ruta = `herramientas-enaire/${url}`;
-
     const ref = doc(this.firestore, ruta);
-
-    return docData(ref) as Observable<any>;
+  
+    return docData(ref, { idField: 'id' }).pipe(
+      map((data: any) => this.tsToDate(data))
+    );
   }
 
   /* Obtener todos los documentos de una coleccion con cambios a tiempo real */
-  getCollectionByAdress<T>(url: string): Observable<T[]> {
+  getCollectionByAddress<T>(url: string): Observable<T[]> {
     const ruta = `herramientas-enaire/${url}`;
-    return collectionData(collection(this.firestore, ruta)) as Observable<T[]>;
+    return collectionData(collection(this.firestore, ruta), { idField: 'id' }).pipe(
+      map(docs => docs.map(d => this.tsToDate(d) as T))
+    );
   }
 
   /**
-   * @description Crear o modificar un documento por direccion
+   * @description Crear o Modificar un documento por direccion
    */
-  setDocumentByAddress(address: string, data: any): Promise<void> {
-    const docRef = doc(this.firestore, address);
-    return setDoc(docRef, data);
+  setDocumentByAddress(url: string, data: any): Promise<void> {
+    let ruta = `herramientas-enaire/${url}`;
+  
+    if (data?.id) {
+      // Si hay ID, actualiza documento por su ID
+      ruta += data.id;
+      const docRef = doc(this.firestore, ruta);
+      return setDoc(docRef, data, { merge: true }); // merge para que solo actualice, no setee directamente todo
+    } else {
+      // Si no hay ID, crea uno nuevo en la colección y le mete el id
+      const colRef = collection(this.firestore, ruta);
+  
+      const nuevoDocRef = doc(colRef);
+      const dataConId = { ...data, id: nuevoDocRef.id };
+  
+      return setDoc(nuevoDocRef, dataConId);
+    }
+  }
+
+  /**
+   * Elimina el documento cuyo id = `docId` dentro de la colección indicada.
+   * @param url   Ruta relativa a la colección
+   * @param docId ID del documento a borrar
+   */
+  deleteDocumentById(url: string, docId: string): Promise<void> {
+    const ruta = `herramientas-enaire/${url}/${docId}`;
+    const ref  = doc(this.firestore, ruta);
+
+    return deleteDoc(ref);
   }
   
   /*=====  Final de Database management  ======*/
+
+  /**
+   * Convierte recursivamente todos los Timestamp → Date
+   */
+  private tsToDate(obj: any): any {
+    if (obj === null || obj === undefined) return obj;
+  
+    if (obj instanceof Timestamp) {
+      return obj.toDate();
+    }
+  
+    if (Array.isArray(obj)) {
+      return obj.map((item) => this.tsToDate(item));
+    }
+  
+    if (typeof obj === 'object') {
+      const result: any = {};
+      for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          result[key] = this.tsToDate(obj[key]);
+        }
+      }
+      return result;
+    }
+  
+    return obj;
+  }
 }

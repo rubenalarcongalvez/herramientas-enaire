@@ -13,22 +13,22 @@
     <header class="flex gap-2 w-full bg-blue-600 text-white p-2 justify-between">
       <section class="flex gap-2 items-center">
         <img (click)="visibleSidebar = true" src="enaire.png" alt="Icono enaire" width="25" class="rounded cursor-pointer" pTooltip="Historial de Sprints">
-        <span class="cursor-pointer" [routerLink]="['/Sprint/', sprintSeleccionado()]">SP{{sprintSeleccionado()}}</span>
+        <span class="cursor-pointer hover:text-cyan-400" [routerLink]="['/Sprint/', sprintSeleccionado()]" routerLinkActive="ruta-activa">SP{{sprintSeleccionado()}}</span>
         <i class="pi pi-plus cursor-pointer" style="font-size: 15px;" pTooltip="Añadir Sprint"></i>
       </section>
       <section class="flex items-center justify-center gap-2">
-        <article class="cursor-pointer gap-2 items-baseline hover:text-cyan-400 flex" routerLink="/estadisticas">
+        <article class="cursor-pointer gap-2 items-baseline hover:text-cyan-400 flex" routerLink="/estadisticas" routerLinkActive="ruta-activa">
           <i class="pi pi-chart-bar" pTooltip="Estadísticas"></i>
           <span class="hidden sm:block">Estadísticas</span>
         </article>
         <hr class="h-4">
-        <article class="cursor-pointer gap-2 items-baseline hover:text-cyan-400 flex" routerLink="/vacaciones">
+        <article class="cursor-pointer gap-2 items-baseline hover:text-cyan-400 flex" routerLink="/vacaciones" routerLinkActive="ruta-activa">
           <i class="pi pi-calendar" pTooltip="Vacaciones"></i>
           <span class="hidden sm:block">Vacaciones</span>
         </article>
       </section>
       <section class="flex items-center justify-center gap-2">
-        <article class="cursor-pointer gap-2 items-baseline hover:text-cyan-400 flex" routerLink="/usuarios">
+        <article class="cursor-pointer gap-2 items-baseline hover:text-cyan-400 flex" routerLink="/usuarios" routerLinkActive="ruta-activa">
           <i class="pi pi-user" pTooltip="Usuarios"></i>
           <span class="hidden sm:block">Usuarios</span>
         </article>

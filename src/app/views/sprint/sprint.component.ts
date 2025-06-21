@@ -40,8 +40,7 @@ export class SprintComponent {
   constructor(private activatedRoute: ActivatedRoute, private storageService: StorageService, private messageService: MessageService) {
     this.activatedRoute.params.subscribe((params) => this.sprintSeleccionado.set(params['id']));
 
-    this.storageService.getDocumentByAdress(`${sessionStorage.getItem('contrasenaAcceso')}/sprints/${this.sprintSeleccionado()}`).subscribe({
-      /* TODO: Coger los datos de aqui */
+    this.storageService.getDocumentByAddress(`${sessionStorage.getItem('contrasenaAcceso')}/sprints/${this.sprintSeleccionado()}`).subscribe({
       next: (resp) => {
         if (resp) {
           this.sprint.set(resp);

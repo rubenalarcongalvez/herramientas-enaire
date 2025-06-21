@@ -19,7 +19,7 @@ export function obtenerFechaCumpleString(fecha: Date | Timestamp): string {
     return '';
   }
 
-  const d: Date = fecha instanceof Date ? fecha : fecha.toDate();
+  const d: Date = fecha instanceof Date ? fecha : fecha?.toDate();
 
   const dia  = d.getDate().toString().padStart(2, '0');
   const mes  = d.toLocaleString('es-ES', { month: 'long' });
@@ -53,4 +53,14 @@ export function esMismoDiaCumple(a: Date | Timestamp | undefined | null, b: Date
   const d2: Date = b instanceof Date ? b : b.toDate();
 
   return d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+}
+
+export function ponerFocusInputPrincipal() {
+  setTimeout(() => {
+    (document.querySelector('.inputPrincipal') as HTMLTextAreaElement)?.focus();
+  }, 0);
+}
+
+export function normalizarCadena(cadena: string) {
+    return String(cadena.toLowerCase()).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }

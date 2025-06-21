@@ -18,9 +18,9 @@
           >
               <ng-template #caption>
                   <div class="flex items-center justify-between gap-2">
-                    <p-button [ngClass]="{'invisible': subida?.entorno?.includes(entornos.DES)}" (onClick)="toPedirSubida()" pTooltip="Pedir subida">
+                    <p-button [ngClass]="{'invisible': subida?.entorno?.includes(entornos.DES)}" (onClick)="toPedirSubida()">
                         <span class="hidden sm:block">Pedir subida</span>
-                        <i class="pi pi-question"></i>
+                        <i class="pi pi-question" pTooltip="Pedir subida"></i>
                     </p-button>
                     <h4 class="m-0 text-center">Subida a 
                         <span [ngClass]="{'text-green-500': subida?.entorno?.includes(entornos.DES), 'text-orange-500': subida?.entorno?.includes(entornos.PRE), 'text-red-500': subida?.entorno?.includes(entornos.PRO)}">{{ subida.entorno }}</span>
@@ -28,11 +28,11 @@
                         <span [pTooltip]="esMismoDia(subida.fechaSubida) ? 'Es hoy la subida' : ''" [ngClass]="{'bg-blue-400 text-white p-1 rounded': esMismoDia(subida.fechaSubida)}">{{ obtenerFechaString(subida.fechaSubida!) }}</span>
                     </h4>
                     <div class="flex gap-3 items-center">
-                        <p-button (onClick)="nuevoElementoSubida(subida.elementosSubida!)" pTooltip="Añadir elemento">
+                        <p-button (onClick)="nuevoElementoSubida(subida.elementosSubida!)">
                             <span class="hidden sm:block">Añadir elemento</span>
-                            <i class="pi pi-plus"></i>
+                            <i class="pi pi-plus" pTooltip="Añadir elemento" tooltipPosition="left"></i>
                         </p-button>
-                        <i class="pi pi-pen-to-square text-orange-400" pTooltip="Editar subida" (onClick)="editarSubida(subida)"></i>
+                        <i class="pi pi-pen-to-square text-orange-400" pTooltip="Editar subida" tooltipPosition="left" (onClick)="editarSubida(subida)"></i>
                         <i class="pi pi-trash text-red-600" pTooltip="Eliminar subida" (onClick)="eliminarSubida(subida)"></i>
                     </div>
                   </div>
@@ -77,67 +77,6 @@
                   </tr>
               </ng-template>
           </p-table>
-
-          <!-- <p-dialog [(visible)]="productDialog" [style]="{ width: '450px' }" header="Product Details" [modal]="true">
-              <ng-template #content>
-                  <div class="flex flex-col gap-6">
-                      <img [src]="'https://primefaces.org/cdn/primeng/images/demo/product/' + product.image" [alt]="product.image" class="block m-auto pb-4" *ngIf="product.image" />
-                      <div>
-                          <label for="name" class="block font-bold mb-3">Name</label>
-                          <input type="text" pInputText id="name" [(ngModel)]="product.name" required autofocus fluid />
-                          <small class="text-red-500" *ngIf="submitted && !product.name">Name is required.</small>
-                      </div>
-                      <div>
-                          <label for="description" class="block font-bold mb-3">Description</label>
-                          <textarea id="description" pTextarea [(ngModel)]="product.description" required rows="3" cols="20" fluid></textarea>
-                      </div>
-
-                      <div>
-                          <label for="inventoryStatus" class="block font-bold mb-3">Inventory Status</label>
-                          <p-select [(ngModel)]="product.inventoryStatus" inputId="inventoryStatus" [options]="statuses" optionLabel="label" placeholder="Select a Status" fluid />
-                      </div>
-
-                      <div>
-                          <span class="block font-bold mb-4">Category</span>
-                          <div class="grid grid-cols-12 gap-4">
-                              <div class="flex items-center gap-2 col-span-6">
-                                  <p-radiobutton id="category1" name="category" value="Accessories" [(ngModel)]="product.category" />
-                                  <label for="category1">Accessories</label>
-                              </div>
-                              <div class="flex items-center gap-2 col-span-6">
-                                  <p-radiobutton id="category2" name="category" value="Clothing" [(ngModel)]="product.category" />
-                                  <label for="category2">Clothing</label>
-                              </div>
-                              <div class="flex items-center gap-2 col-span-6">
-                                  <p-radiobutton id="category3" name="category" value="Electronics" [(ngModel)]="product.category" />
-                                  <label for="category3">Electronics</label>
-                              </div>
-                              <div class="flex items-center gap-2 col-span-6">
-                                  <p-radiobutton id="category4" name="category" value="Fitness" [(ngModel)]="product.category" />
-                                  <label for="category4">Fitness</label>
-                              </div>
-                          </div>
-                      </div>
-
-                      <div class="grid grid-cols-12 gap-4">
-                          <div class="col-span-6">
-                              <label for="price" class="block font-bold mb-3">Price</label>
-                              <p-inputnumber id="price" [(ngModel)]="product.price" mode="currency" currency="USD" locale="en-US" fluid />
-                          </div>
-                          <div class="col-span-6">
-                              <label for="quantity" class="block font-bold mb-3">Quantity</label>
-                              <p-inputnumber id="quantity" [(ngModel)]="product.quantity" fluid />
-                          </div>
-                      </div>
-                  </div>
-              </ng-template>
-
-              <ng-template #footer>
-                  <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()" />
-                  <p-button label="Save" icon="pi pi-check" (click)="saveProduct()" />
-              </ng-template>
-          </p-dialog> -->
-
           <p-confirmDialog [style]="{ width: '450px' }" />
       </div>
       }

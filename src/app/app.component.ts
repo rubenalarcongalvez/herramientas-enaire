@@ -7,7 +7,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StorageService } from './shared/services/storage.service';
 import { ToastModule } from 'primeng/toast';
@@ -18,7 +18,7 @@ import { Usuario } from './shared/interfaces/usuario';
 
 @Component({
   selector: 'app-root',
-  imports: [FooterComponent, RouterOutlet, RouterLink, AuthenticationComponent, TooltipModule, ButtonModule, CommonModule, ProgressSpinnerModule, ToastModule, DrawerModule],
+  imports: [FooterComponent, RouterOutlet, RouterLink, RouterLinkActive, AuthenticationComponent, TooltipModule, ButtonModule, CommonModule, ProgressSpinnerModule, ToastModule, DrawerModule],
   providers: [MessageService],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
@@ -51,7 +51,7 @@ export class AppComponent {
       });
       
       /* Obtenemos los usuarios tambien */
-      this.storageService.getCollectionByAdress(`${contrasenaAcceso}/usuarios`).subscribe({
+      this.storageService.getCollectionByAddress(`${contrasenaAcceso}/usuarios`).subscribe({
         next: (resp) => {
           this.usuarios.set(resp as Usuario[]);
         }, error: (err) => {
