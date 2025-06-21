@@ -1,0 +1,69 @@
+<p-table
+    #dt
+    [value]="usuariosTabla()"
+    rowHover
+    dataKey="id"
+    [globalFilterFields]="['nombre', 'alias', 'cumpleanos']"
+    responsiveLayout="stack"
+    breakpoint="750px"
+    [multiSortMeta]="sortMeta"
+    (onStateRestore)="onStateRestored($event)"
+    sortMode="multiple"
+    stateStorage="local"
+    stateKey="orden-tabla-usuarios"
+>
+    <ng-template #caption>
+        <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+                <h4 class="m-0 text-center">Usuarios</h4>
+                <i class="pi pi-info-circle text-blue-500" pTooltip="La elección del orden de la tabla se guardará para siguientes usos"></i>
+            </div>
+            <p-iconfield iconPosition="left" class="ml-auto">
+                <p-inputicon>
+                    <i class="pi pi-search"></i>
+                </p-inputicon>
+                <input pInputText pSize="small" type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar..." />
+            </p-iconfield>
+            <div class="flex gap-3 items-center">
+                <p-button (onClick)="nuevoUsuario()" class="flex gap-2 items-center">
+                    <span>Añadir usuario</span>
+                    <i class="pi pi-plus"></i>
+                </p-button>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template #header>
+        <tr>
+            <th pSortableColumn="alias">
+                Alias
+                <p-sortIcon field="alias" />
+            </th>
+            <th pSortableColumn="nombre">
+                Nombre
+                <p-sortIcon field="nombre" />
+            </th>
+            <th pSortableColumn="cumpleanos">
+                Cumpleaños
+                <p-sortIcon field="cumpleanos"/>
+            </th>
+            <th></th>
+        </tr>
+    </ng-template>
+    <ng-template #body let-usuario>
+        <tr>
+            <td>
+                <span class="flex items-center gap-2 my-2 w-full">{{ usuario?.alias }}</span>
+            </td>
+            <td>
+                <span class="flex items-center gap-2 my-2 w-full">{{ usuario?.nombre }}</span>
+            </td>
+            <td>
+                <span class="flex w-full">{{ usuario.cumpleanos }}</span>
+            </td>
+            <td>
+                <i class="pi pi-pencil mr-3 text-orange-500 cursor-pointer" (click)="editarUsuario(usuario)" pTooltip="Editar"></i>
+                <i class="pi pi-trash text-red-500 cursor-pointer" (click)="eliminarUsuario(usuario)" pTooltip="Eliminar"></i>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>

@@ -1,10 +1,10 @@
 <p-toast/>
 
 @if (sprint()) {
-    <h1 class="flex items-center justify-between gap-2">Sprint {{ sprintSeleccionado() }} <p-button label="Añadir subida" icon="pi pi-plus" class="mr-2 bg-diferente" (onClick)="nuevaSubida()"/></h1>
+    <h1 class="flex items-center justify-between gap-2 mx-2">Sprint {{ sprintSeleccionado() }} <p-button label="Añadir subida" icon="pi pi-plus" class="mr-2 bg-diferente" (onClick)="nuevaSubida()"/></h1>
     <section class="flex flex-col gap-2 justify-center items-center">
       @for (subida of sprint()?.subidas; track subida) {
-        <div class="card">
+        <div class="card mb-8 w-full">
           <p-table
               #dt
               [value]="subida.elementosSubida!"
@@ -13,11 +13,28 @@
               [globalFilterFields]="['tipo', 'moduloSubido', 'usuariosSubida', 'completado']"
               responsiveLayout="stack"
               breakpoint="750px"
+              [multiSortMeta]="[{field: 'tipo', order: -1}]"
+              sortMode="multiple"
           >
               <ng-template #caption>
-                  <div class="flex items-center justify-end gap-2">
-                      <h4 class="m-0">Subida a <span [ngClass]="{'text-green-500': subida.entorno.includes(entornos.DES), 'text-orange-500': subida.entorno.includes(entornos.PRE), 'text-red-500': subida.entorno.includes(entornos.PRO)}">{{ subida.entorno }}</span><span class="">{{ subida?.fechaSubida ? (' - ' + obtenerFechaString(subida.fechaSubida!)) : '' }}</span></h4>
-                      <p-button label="Añadir elemento" icon="pi pi-plus" class="mr-2" (onClick)="nuevoElementoSubida(subida.elementosSubida!)"/>
+                  <div class="flex items-center justify-between gap-2">
+                    <p-button [ngClass]="{'invisible': subida?.entorno?.includes(entornos.DES)}" (onClick)="toPedirSubida()" pTooltip="Pedir subida">
+                        <span class="hidden sm:block">Pedir subida</span>
+                        <i class="pi pi-question"></i>
+                    </p-button>
+                    <h4 class="m-0 text-center">Subida a 
+                        <span [ngClass]="{'text-green-500': subida?.entorno?.includes(entornos.DES), 'text-orange-500': subida?.entorno?.includes(entornos.PRE), 'text-red-500': subida?.entorno?.includes(entornos.PRO)}">{{ subida.entorno }}</span>
+                        <span *ngIf="subida?.fechaSubida"> - </span>
+                        <span [pTooltip]="esMismoDia(subida.fechaSubida) ? 'Es hoy la subida' : ''" [ngClass]="{'bg-blue-400 text-white p-1 rounded': esMismoDia(subida.fechaSubida)}">{{ obtenerFechaString(subida.fechaSubida!) }}</span>
+                    </h4>
+                    <div class="flex gap-3 items-center">
+                        <p-button (onClick)="nuevoElementoSubida(subida.elementosSubida!)" pTooltip="Añadir elemento">
+                            <span class="hidden sm:block">Añadir elemento</span>
+                            <i class="pi pi-plus"></i>
+                        </p-button>
+                        <i class="pi pi-pen-to-square text-orange-400" pTooltip="Editar subida" (onClick)="editarSubida(subida)"></i>
+                        <i class="pi pi-trash text-red-600" pTooltip="Eliminar subida" (onClick)="eliminarSubida(subida)"></i>
+                    </div>
                   </div>
               </ng-template>
               <ng-template #header>
@@ -34,7 +51,7 @@
                           Usuarios Subida
                           <p-sortIcon field="usuariosSubida" />
                       </th>
-                      <th pSortableColumn="name">
+                      <th pSortableColumn="completado">
                           Completado
                           <p-sortIcon field="completado" />
                       </th>
@@ -47,7 +64,7 @@
                       <td><span class="flex justify-center w-full">{{ elemento?.moduloSubido }}</span></td>
                       <td>
                           @for (usuarioSubida of elemento.usuariosSubida; track usuarioSubida.alias) {
-                            <li class="flex items-center gap-2 my-2"><span>{{ usuarioSubida?.alias || usuarioSubida.nombre }}</span> <i *ngIf="usuarioSubida?.alias" class="pi pi-info text-white bg-blue-500 p-1 rounded" style="font-size: 10px;" [pTooltip]="usuarioSubida.nombre"></i></li>
+                            <li class="flex items-center gap-2 my-2 w-full justify-center"><span>{{ usuarioSubida?.alias || usuarioSubida.nombre }}</span> <i *ngIf="usuarioSubida?.alias" class="pi pi-info-circle text-blue-500" [pTooltip]="usuarioSubida.nombre"></i></li>
                           }
                       </td>
                       <td>

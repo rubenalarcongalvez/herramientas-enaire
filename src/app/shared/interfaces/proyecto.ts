@@ -3,6 +3,6 @@ import { Usuario } from "./usuario";
 
 export interface Proyecto {
     nombreProyecto: string;
-    usuariosActuales: Usuario[];
+    usuarios: Usuario[];
     sprints: Sprint[];
 }

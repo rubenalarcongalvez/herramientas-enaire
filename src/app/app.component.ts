@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FooterComponent } from './shared/components/footer/footer.component';
 import { AuthenticationComponent } from './components/authentication/authentication.component';
 
@@ -10,34 +10,55 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StorageService } from './shared/services/storage.service';
+import { ToastModule } from 'primeng/toast';
+import { DrawerModule } from 'primeng/drawer';
+import { MessageService } from 'primeng/api';
+import { esMismoDiaCumple } from './shared/util/util';
+import { Usuario } from './shared/interfaces/usuario';
 
 @Component({
   selector: 'app-root',
-  imports: [FooterComponent, RouterOutlet, RouterLink, AuthenticationComponent, TooltipModule, ButtonModule, CommonModule, ProgressSpinnerModule],
+  imports: [FooterComponent, RouterOutlet, RouterLink, AuthenticationComponent, TooltipModule, ButtonModule, CommonModule, ProgressSpinnerModule, ToastModule, DrawerModule],
+  providers: [MessageService],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  sprintSeleccionado: number = 42;
+  sprintSeleccionado = inject(StorageService).sprintSeleccionado;
+  usuarios = inject(StorageService).usuarios;
   cargado = signal(false);
+  visibleSidebar: boolean = false;
+  fechaActual: Date = new Date();
+  personasQueCumplenAnoHoy = computed(() => this.usuarios().filter(usu => esMismoDiaCumple(usu.cumpleanos as any, this.fechaActual)).map(usu => usu?.alias ? usu?.alias : usu?.nombre).join(' y '));
 
-  constructor(private storageService: StorageService) {}
+  constructor(private storageService: StorageService, private messageService: MessageService) {}
 
   ngOnInit() {
-    const contrasenaAcceso = localStorage.getItem('contrasenaAcceso') + '/sprints/42';
+    const contrasenaAcceso = localStorage.getItem('contrasenaAcceso');
     if (contrasenaAcceso) {
-      this.storageService.existeDocumento(`herramientas-enaire/${contrasenaAcceso}`).then((resp) => {
-        if (resp) {
+      this.storageService.obtenerNumeroUltimoSprint(contrasenaAcceso, this.fechaActual).subscribe({
+        next: (resp) => {
           sessionStorage.setItem('contrasenaAcceso', contrasenaAcceso);
-        } else {
+          this.sprintSeleccionado.set(resp);
+          this.cargado.set(true)
+        }, error: (err) => {
+          console.error(err);
+          this.messageService.add({ severity: 'error', summary: 'No se pudo obtener la información', detail: 'Vuelva a iniciar sesión', life: 3000 });
           sessionStorage.removeItem('contrasenaAcceso');
           sessionStorage.removeItem('contrasenaAdmin');
+          this.cargado.set(true)
         }
-      }).catch((err) => {
-        console.error(err);
-        sessionStorage.removeItem('contrasenaAcceso');
-        sessionStorage.removeItem('contrasenaAdmin');
-      }).finally(() => this.cargado.set(true));
+      });
+      
+      /* Obtenemos los usuarios tambien */
+      this.storageService.getCollectionByAdress(`${contrasenaAcceso}/usuarios`).subscribe({
+        next: (resp) => {
+          this.usuarios.set(resp as Usuario[]);
+        }, error: (err) => {
+          console.error(err);
+          this.messageService.add({ severity: 'error', summary: 'No se pudieron cargar los usuarios', detail: 'Vuelva a iniciar sesión si el problema persiste', life: 3000 });
+        }
+      });
     } else {
       this.cargado.set(true);
     }

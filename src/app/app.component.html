@@ -1,19 +1,44 @@
-<div class="flex flex-col min-h-[100vh] justify-center items-center" [ngClass]="{'fondo-login': !cargado() || !contrasenaAcceso}">
+<p-toast/>
+
+<p-drawer blockScroll [(visible)]="visibleSidebar" header="Historial de SPs" styleClass="!w-full md:!w-80 lg:!w-[30rem]">
+    <div class="flex flex-col gap-2 justify-center w-full panel-lateral">
+      <h4>SP 42</h4>
+      <h4>SP 41</h4>
+      <h4>SP 40</h4>
+    </div>
+</p-drawer>
+
+<div class="flex flex-col min-h-[100vh] justify-center flex-wrap" [ngClass]="{'fondo-login': !cargado() || !contrasenaAcceso}">
   @if (cargado() && contrasenaAcceso) {
-    <header class="flex gap-2 w-full bg-blue-600 text-white p-2 justify-between" style="border-radius: 0 0 5px 5px;">
+    <header class="flex gap-2 w-full bg-blue-600 text-white p-2 justify-between">
       <section class="flex gap-2 items-center">
-        <img src="enaire.png" alt="Icono enaire" width="25" class="rounded cursor-pointer" pTooltip="Historial de Sprints">
-        <span class="cursor-pointer" [routerLink]="['/Sprint/', sprintSeleccionado]">SPNUMERO</span>
+        <img (click)="visibleSidebar = true" src="enaire.png" alt="Icono enaire" width="25" class="rounded cursor-pointer" pTooltip="Historial de Sprints">
+        <span class="cursor-pointer" [routerLink]="['/Sprint/', sprintSeleccionado()]">SP{{sprintSeleccionado()}}</span>
         <i class="pi pi-plus cursor-pointer" style="font-size: 15px;" pTooltip="Añadir Sprint"></i>
       </section>
       <section class="flex items-center justify-center gap-2">
-        <i class="pi pi-chart-bar cursor-pointer" pTooltip="Estadísticas" routerLink="/estadisticas"></i>
-        <i class="pi pi-calendar cursor-pointer" pTooltip="Vacaciones" routerLink="/vacaciones"></i>
+        <article class="cursor-pointer gap-2 items-baseline hover:text-cyan-400 flex" routerLink="/estadisticas">
+          <i class="pi pi-chart-bar" pTooltip="Estadísticas"></i>
+          <span class="hidden sm:block">Estadísticas</span>
+        </article>
+        <hr class="h-4">
+        <article class="cursor-pointer gap-2 items-baseline hover:text-cyan-400 flex" routerLink="/vacaciones">
+          <i class="pi pi-calendar" pTooltip="Vacaciones"></i>
+          <span class="hidden sm:block">Vacaciones</span>
+        </article>
       </section>
       <section class="flex items-center justify-center gap-2">
+        <article class="cursor-pointer gap-2 items-baseline hover:text-cyan-400 flex" routerLink="/usuarios">
+          <i class="pi pi-user" pTooltip="Usuarios"></i>
+          <span class="hidden sm:block">Usuarios</span>
+        </article>
+        <hr class="h-4">
         <i class="pi pi-sign-out cursor-pointer" pTooltip="Cerrar sesión" (click)="cerrarSesion()"></i>
       </section>
     </header>
+    @if (personasQueCumplenAnoHoy()) {
+      <nav class="text-center p-2 bg-orange-600 text-white">Hoy cumple años <span class="text-green-400"><b>{{ personasQueCumplenAnoHoy() }}</b></span>. ¡Muchas Felicidades!</nav>
+    }
 
     <main class="grow p-2">
       <router-outlet></router-outlet>
@@ -21,7 +46,9 @@
 
     <!-- <app-footer class="w-full"></app-footer> -->
   } @else if (!cargado()) {
-    <p-progress-spinner ariaLabel="loading"/>
+    <div class="w-full flex justify-center">
+      <p-progress-spinner ariaLabel="loading"/>
+    </div>
   } @else {
     <app-authentication class="w-full flex justify-center px-2"></app-authentication>
   }
