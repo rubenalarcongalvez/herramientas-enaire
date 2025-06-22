@@ -13,7 +13,7 @@ import { StorageService } from './shared/services/storage.service';
 import { ToastModule } from 'primeng/toast';
 import { DrawerModule } from 'primeng/drawer';
 import { MessageService } from 'primeng/api';
-import { esMismoDiaCumple } from './shared/util/util';
+import { esDiaLibre, esMismoDiaCumple, joinConY } from './shared/util/util';
 import { Usuario } from './shared/interfaces/usuario';
 
 @Component({
@@ -30,7 +30,11 @@ export class AppComponent {
   cargado = signal(false);
   visibleSidebar: boolean = false;
   fechaActual: Date = new Date();
-  personasQueCumplenAnoHoy = computed(() => this.usuarios().filter(usu => esMismoDiaCumple(usu.cumpleanos as any, this.fechaActual)).map(usu => usu?.alias ? usu?.alias : usu?.nombre).join(' y '));
+  personasQueCumplenAnoHoy = computed(() => joinConY(this.usuarios().filter(usu => esMismoDiaCumple(usu.cumpleanos as any, this.fechaActual)).map(usu => usu?.alias ? usu?.alias : usu?.nombre)));
+  personasDiasLibresHoy = computed(() => joinConY(this.usuarios().filter(usu => esDiaLibre(usu as Usuario, this.fechaActual)).map(usu => usu?.alias ? usu?.alias : usu?.nombre)));
+
+  mostrarDiaLibre: boolean = true;
+  mostrarCumpleanos: boolean = true;
 
   constructor(private storageService: StorageService, private messageService: MessageService, private router: Router) {}
 

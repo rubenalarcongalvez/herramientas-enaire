@@ -1,0 +1,26 @@
+@if (usuarios().length) {
+    <section class="flex flex-wrap gap-3 items-center py-2">
+        <!-- Leyenda -->
+        <article class="flex items-center gap-1">
+            <div class="w-[20px] h-[20px] rounded" style="background-color: #2563eb;"></div>
+            <span class="pt-1">Vacaciones</span>
+        </article>
+        <article class="flex items-center gap-1">
+            <div class="w-[20px] h-[20px] rounded" style="background-color: orangered;"></div>
+            <span class="pt-1">Asuntos propios</span>
+        </article>
+        <article class="flex items-center gap-1">
+            <div class="w-[20px] h-[20px] rounded" style="background-color: #16a34a;"></div>
+            <span class="pt-1">Enfermedad</span>
+        </article>
+        <article class="flex items-center gap-1">
+            <div class="w-[20px] h-[20px] rounded" style="background-color: #a855f7;"></div>
+            <span class="pt-1">Otras ausencias</span>
+        </article>
+    </section>
+    <full-calendar [options]="calendarOptions()"></full-calendar>
+} @else {
+    <div class="w-full flex justify-center">
+      <p-progress-spinner ariaLabel="loading"/>
+    </div>
+}

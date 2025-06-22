@@ -5,5 +5,17 @@ export interface Usuario {
     nombre: string,
     alias: string, // Mote carinoso
     cumpleanos: Date,
+    exentoSubidas: boolean, // Si el usuario no tiene que subir nada (clientes ENAIRE por ejemplo)
+
+    vacaciones: Date[],
+    asuntosPropios: Date[],
+    enfermedad: Date[],
+    otrasAusencias: Date[],
+
+    /* Hay que traerse los datos de otra parte */
+    distsUltimosSprints: number,
+    warsUltimosSprints: number,
+    earsUltimosSprints: number,
+
     cumpleanosStr: string // Solo para el front
 }

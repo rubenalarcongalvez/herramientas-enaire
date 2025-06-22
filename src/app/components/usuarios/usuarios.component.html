@@ -48,22 +48,44 @@
                 Cumpleaños
                 <p-sortIcon field="cumpleanos"/>
             </th>
+            <th pSortableColumn="distsUltimosSprints">
+                Dists
+                <p-sortIcon field="distsUltimosSprints"/>
+            </th>
+            <th pSortableColumn="warsUltimosSprints">
+                Wars
+                <p-sortIcon field="warsUltimosSprints"/>
+            </th>
+            <th pSortableColumn="earsUltimosSprints">
+                Ears
+                <p-sortIcon field="earsUltimosSprints"/>
+            </th>
             <th></th>
         </tr>
     </ng-template>
     <ng-template #body let-usuario>
         <tr>
             <td>
-                <span class="flex items-center my-2 w-full m-0 p-0" [innerHTML]="usuario?.alias | highlightpipe : filtroSimple"></span>
+                <span class="flex items-center my-2 w-full m-0 p-0 max-[750px]:justify-center" [innerHTML]="usuario?.alias | highlightpipe : filtroSimple"></span>
             </td>
             <td>
-                <span class="flex items-center my-2 w-full m-0 p-0" [innerHTML]="usuario?.nombre | highlightpipe : filtroSimple"></span>
+                <span class="flex items-center my-2 w-full m-0 p-0 max-[750px]:justify-center" [innerHTML]="usuario?.nombre | highlightpipe : filtroSimple"></span>
             </td>
             <td>
-                <span class="flex w-full m-0 p-0" [innerHTML]="usuario?.cumpleanosStr | highlightpipe : filtroSimple"></span>
+                <span class="flex w-full m-0 p-0 max-[750px]:justify-center" [innerHTML]="usuario?.cumpleanosStr | highlightpipe : filtroSimple"></span>
             </td>
             <td>
-                <i class="pi pi-pencil mr-3 text-orange-500 cursor-pointer" (click)="ponerDatosEditarUsuario(usuario.id); usuarioDialog = true" pTooltip="Editar"></i>
+                <span class="w-full flex text-white m-0 p-1 bg-blue-500 rounded justify-center">{{ usuario?.distsUltimosSprints || 0 }}</span>
+            </td>
+            <td>
+                <span class="w-full flex text-white m-0 p-1 bg-orange-500 rounded justify-center">{{ usuario?.warsUltimosSprints || 0 }}</span>
+            </td>
+            <td>
+                <span class="w-full flex text-white m-0 p-1 bg-red-500 rounded justify-center">{{ usuario?.earsUltimosSprints || 0 }}</span>
+            </td>
+            <td>
+                <i class="pi pi-calendar mr-3 text-blue-500 cursor-pointer" (click)="ponerDatosUsuario(usuario); diasLibresDialog = true" pTooltip="Días libres"></i>
+                <i class="pi pi-pencil mr-3 text-orange-500 cursor-pointer" (click)="ponerDatosUsuario(usuario); usuarioDialog = true" pTooltip="Editar"></i>
                 <i class="pi pi-trash text-red-500 cursor-pointer" (click)="eliminarUsuario(usuario)" pTooltip="Eliminar"></i>
             </td>
         </tr>
@@ -73,7 +95,7 @@
 <p-confirmDialog draggable="false"/>
 
 <!-- Dialogos -->
-<!-- Anadir Usuario -->
+<!-- Anadir/Editar Usuario -->
 <p-dialog 
     [(visible)]="usuarioDialog" 
     [modal]="true" 
@@ -88,13 +110,23 @@
         <h2>{{ formUsuario?.get('id')?.value ? 'Editar' : 'Añadir' }} usuario</h2>
     </ng-template>
     
-    <form [formGroup]="formUsuario!" (ngSubmit)="aplicarUsuario()" (keydown.enter)="aplicarUsuario()" class="flex flex-col items-center gap-3 w-full">
-        <input placeholder="Nombre y apellidos" pInputText id="nombre" #nombre class="flex-auto w-full text-lg inputPrincipal" autocomplete="off" formControlName="nombre"/>
-        <input placeholder="Alias" pInputText id="alias" #alias class="flex-auto w-full text-lg" autocomplete="off" formControlName="alias"/>
-        <p-datepicker placeholder="Cumpleaños" [firstDayOfWeek]="1" appendTo="body" formControlName="cumpleanos" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="icondisplay" dateFormat="dd 'de' MM"/>
+    <form [formGroup]="formUsuario!" (ngSubmit)="aplicarUsuario()" (keydown.enter)="aplicarUsuario()" class="flex flex-col items-center gap-4 w-full pt-2">
+        <p-floatlabel variant="on" class="w-full">
+            <input pInputText inputId="nombre" id="nombre" #nombre class="flex-auto w-full text-lg inputPrincipal" autocomplete="off" formControlName="nombre"/>
+            <label for="nombre">Nombre y apellidos</label>
+        </p-floatlabel>
         @if (formUsuario?.get('nombre')?.dirty && formUsuario?.get('nombre')?.invalid) {
             <p-message severity="error" class="w-full">El nombre completo es obligatorio</p-message>
         }
+
+        <p-floatlabel variant="on" class="w-full">
+            <input inputId="alias" pInputText id="alias" #alias class="flex-auto w-full text-lg" autocomplete="off" formControlName="alias"/>
+            <label for="alias">Alias</label>
+        </p-floatlabel>
+        <p-floatlabel variant="on" class="w-full">
+            <p-datepicker [firstDayOfWeek]="1" appendTo="body" formControlName="cumpleanos" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="cumpleanos" dateFormat="dd 'de' MM"/>
+            <label for="cumpleanos">Cumpleaños</label>
+        </p-floatlabel>
     </form>
 
     <ng-template pTemplate="footer">
@@ -106,7 +138,57 @@
                 (onClick)="usuarioDialog = false" 
             />
             <p-button 
-                label="Añadir" 
+                [label]="formUsuario?.get('id')?.value ? 'Editar' : 'Añadir'" 
+                (onClick)="aplicarUsuario()" 
+            />
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Dias Libres -->
+ <p-dialog 
+    [(visible)]="diasLibresDialog" 
+    [modal]="true" 
+    [dismissableMask]="false"
+    draggable="false"
+    maximizable
+    styleClass="p-3 w-[500px]"
+    (onShow)="ponerFocusInputPrincipal()"
+    (onHide)="formUsuario?.reset()"
+>
+    <ng-template pTemplate="header">
+        <h2>Días libres de {{ this.formUsuario?.get('alias')?.value ? this.formUsuario?.get('alias')?.value : this.formUsuario?.get('nombre')?.value }}</h2>
+    </ng-template>
+    
+    <form [formGroup]="formUsuario!" (ngSubmit)="aplicarUsuario()" (keydown.enter)="aplicarUsuario()" class="flex flex-col items-center gap-4 w-full pt-2">
+        <p-floatlabel variant="on" class="w-full">
+            <p-datepicker selectionMode="multiple" [readonlyInput]="true" [firstDayOfWeek]="1" appendTo="body" formControlName="vacaciones" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="vacaciones" dateFormat="dd/mm/yy"/>
+            <label for="vacaciones">Vacaciones</label>
+        </p-floatlabel>
+        <p-floatlabel variant="on" class="w-full">
+            <p-datepicker selectionMode="multiple" [readonlyInput]="true" [firstDayOfWeek]="1" appendTo="body" formControlName="asuntosPropios" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="asuntosPropios" dateFormat="dd/mm/yy"/>
+            <label for="asuntosPropios">Asuntos propios</label>
+        </p-floatlabel>
+        <p-floatlabel variant="on" class="w-full">
+            <p-datepicker selectionMode="multiple" [readonlyInput]="true" [firstDayOfWeek]="1" appendTo="body" formControlName="enfermedad" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="enfermedad" dateFormat="dd/mm/yy"/>
+            <label for="enfermedad">Bajas por enfermedad</label>
+        </p-floatlabel>
+        <p-floatlabel variant="on" class="w-full">
+            <p-datepicker selectionMode="multiple" [readonlyInput]="true" [firstDayOfWeek]="1" appendTo="body" formControlName="otrasAusencias" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="otrasAusencias" dateFormat="dd/mm/yy"/>
+            <label for="otrasAusencias">Otras ausencias</label>
+        </p-floatlabel>
+    </form>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-2 p-2">
+            <p-button 
+                label="Cancelar" 
+                [text]="true" 
+                styleClass="cancel"
+                (onClick)="diasLibresDialog = false" 
+            />
+            <p-button 
+                label="Guardar cambios" 
                 (onClick)="aplicarUsuario()" 
             />
         </div>

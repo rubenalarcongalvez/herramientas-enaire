@@ -22,9 +22,9 @@
           <span class="hidden sm:block">Estadísticas</span>
         </article>
         <hr class="h-4">
-        <article class="cursor-pointer gap-2 items-baseline hover:text-cyan-400 flex" routerLink="/vacaciones" routerLinkActive="ruta-activa">
-          <i class="pi pi-calendar" pTooltip="Vacaciones"></i>
-          <span class="hidden sm:block">Vacaciones</span>
+        <article class="cursor-pointer gap-2 items-baseline hover:text-cyan-400 flex" routerLink="/dias-libres" routerLinkActive="ruta-activa">
+          <i class="pi pi-calendar" pTooltip="Días libres"></i>
+          <span class="hidden sm:block">Días libres</span>
         </article>
       </section>
       <section class="flex items-center justify-center gap-2">
@@ -36,8 +36,17 @@
         <i class="pi pi-sign-out cursor-pointer" pTooltip="Cerrar sesión" (click)="cerrarSesion()"></i>
       </section>
     </header>
+    @if (personasDiasLibresHoy()) {
+      <nav *ngIf="mostrarDiaLibre" class="text-center p-2 bg-blue-500 text-white flex gap-2 justify-between items-center flex-wrap">
+        <span class="grow text-center">Día libre de: <span class="text-green-400"><b>{{ personasDiasLibresHoy() }}</b></span>.</span>
+        <i class="pi pi-times cursor-pointer hover:text-gray-300" (click)="mostrarDiaLibre = false"></i>
+      </nav>
+    }
     @if (personasQueCumplenAnoHoy()) {
-      <nav class="text-center p-2 bg-orange-600 text-white">Hoy cumple años <span class="text-green-400"><b>{{ personasQueCumplenAnoHoy() }}</b></span>. ¡Muchas Felicidades!</nav>
+      <nav *ngIf="mostrarCumpleanos" class="text-center p-2 bg-orange-600 text-white flex gap-2 justify-between items-center flex-wrap">
+        <span class="grow text-center">Hoy cumple años <span class="text-green-400"><b>{{ personasQueCumplenAnoHoy() }}</b></span>. ¡Muchas Felicidades!</span>
+        <i class="pi pi-times cursor-pointer hover:text-gray-300" (click)="mostrarCumpleanos = false"></i>
+      </nav>
     }
 
     <main class="grow p-2">

@@ -17,11 +17,12 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageModule } from 'primeng/message';
 import { DatePickerModule } from 'primeng/datepicker';
 import { ToastModule } from 'primeng/toast';
+import { FloatLabelModule } from 'primeng/floatlabel';
 import { HighlightPipe } from '../../shared/pipes/highlight.pipe';
 
 @Component({
   selector: 'app-usuarios',
-  imports: [TableModule, FormsModule, CommonModule, TooltipModule, ButtonModule, IconFieldModule, InputIconModule, InputTextModule, DialogModule, ConfirmDialogModule, MessageModule, AutoCompleteModule, ReactiveFormsModule, DatePickerModule, ToastModule, HighlightPipe],
+  imports: [TableModule, FormsModule, CommonModule, TooltipModule, ButtonModule, IconFieldModule, InputIconModule, InputTextModule, DialogModule, ConfirmDialogModule, MessageModule, AutoCompleteModule, ReactiveFormsModule, DatePickerModule, ToastModule, HighlightPipe, FloatLabelModule],
   providers: [MessageService, ConfirmationService],
   templateUrl: './usuarios.component.html',
   styleUrl: './usuarios.component.css',
@@ -46,8 +47,13 @@ export class UsuariosComponent {
     nombre: ['', [Validators.required]],
     alias: [],
     cumpleanos: [],
+    vacaciones: [[]],
+    asuntosPropios: [[]],
+    enfermedad: [[]],
+    otrasAusencias: [[]],
   });
   usuarioDialog: boolean = false;
+  diasLibresDialog: boolean = false;
   filtroSimple: string = '';
 
   /* Configuracion */
@@ -61,12 +67,15 @@ export class UsuariosComponent {
     }
   }
 
-  ponerDatosEditarUsuario(idUsuario: string) {
-    const usuario = this.usuarios().find(usu => usu.id == idUsuario);
+  ponerDatosUsuario(usuario: Usuario) {
     this.formUsuario?.get('id')?.setValue(usuario?.id);
     this.formUsuario?.get('nombre')?.setValue(usuario?.nombre);
     this.formUsuario?.get('alias')?.setValue(usuario?.alias);
     this.formUsuario?.get('cumpleanos')?.setValue(usuario?.cumpleanos);
+    this.formUsuario?.get('vacaciones')?.setValue(usuario?.vacaciones || []);
+    this.formUsuario?.get('asuntosPropios')?.setValue(usuario?.asuntosPropios || []);
+    this.formUsuario?.get('enfermedad')?.setValue(usuario?.enfermedad || []);
+    this.formUsuario?.get('otrasAusencias')?.setValue(usuario?.otrasAusencias || []);
   }
 
   private messageService = inject(MessageService);
@@ -81,10 +90,15 @@ export class UsuariosComponent {
         id: this.formUsuario?.get('id')?.value,
         nombre: this.formUsuario?.get('nombre')?.value,
         alias: this.formUsuario?.get('alias')?.value,
-        cumpleanos: this.formUsuario?.get('cumpleanos')?.value
+        cumpleanos: this.formUsuario?.get('cumpleanos')?.value,
+        vacaciones: this.formUsuario?.get('vacaciones')?.value,
+        asuntosPropios: this.formUsuario?.get('asuntosPropios')?.value,
+        enfermedad: this.formUsuario?.get('enfermedad')?.value,
+        otrasAusencias: this.formUsuario?.get('otrasAusencias')?.value,
       } as Usuario).then((resp) => {
-        this.messageService.add({ severity: 'info', summary: 'Éxito', detail: 'Usuario' + (this.formUsuario?.get('id')?.value ? ' editado ' : ' añadido ') + 'con éxito', life: 3000 });
+        this.messageService.add({ severity: 'info', summary: 'Éxito', detail: this.formUsuario?.get('id')?.value ? 'Cambios guardados con éxito' : 'Usuario añadido con éxito', life: 3000 });
         this.usuarioDialog = false;
+        this.diasLibresDialog = false;
       }).catch((err) => {
         console.error(err);
         this.messageService.add({ severity: 'error', summary: 'Hubo un error inesperado', detail: 'Vuelva a intentarlo más tarde', life: 3000 });
