@@ -4,8 +4,9 @@ import { Usuario } from "./usuario";
 
 export interface Subida {
     entorno: EntornoEnum;
-    idReferencia?: string; // ID de referencia de la subida pedida
     fechaSubida?: Date;
+    responsable?: Usuario;
+    idReferencia?: string; // ID de referencia de la subida pedida
     elementosSubida?: ElementoSubida[]
 }
 

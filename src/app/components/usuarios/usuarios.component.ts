@@ -31,6 +31,7 @@ export class UsuariosComponent {
   constructor (private storageService: StorageService) {}
   private confirmationService = inject(ConfirmationService);
 
+  limiteSprintsContarSubidas = inject(StorageService).limiteSprintsContarSubidas;
   usuarios = inject(StorageService).usuarios;
   usuariosTabla = computed(() => this.usuarios().map(u => ({
     ...u, // Para mantener una copia superficial

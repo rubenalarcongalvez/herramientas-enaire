@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { StorageService } from '../../shared/services/storage.service';
 import { ToastModule } from 'primeng/toast';
@@ -18,27 +18,55 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ElementoSubida, Subida } from '../../shared/interfaces/subida';
 import { CheckboxModule } from 'primeng/checkbox';
 
-import { esMismoDia, obtenerFechaString } from '../../shared/util/util';
-import { FormsModule } from '@angular/forms';
+import { esMismoDia, normalizarCadena, obtenerFechaString, ponerFocusInputPrincipal } from '../../shared/util/util';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Timestamp } from '@angular/fire/firestore';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { DatePickerModule } from 'primeng/datepicker';
+import { MessageModule } from 'primeng/message';
+import { InputTextModule } from 'primeng/inputtext';
+import { AutoCompleteCompleteEvent, AutoCompleteModule } from 'primeng/autocomplete';
+import { Usuario } from '../../shared/interfaces/usuario';
 
 @Component({
   selector: 'app-sprint',
-  imports: [ToastModule, ProgressSpinnerModule, TableModule, ToolbarModule, ButtonModule, IconFieldModule, InputIconModule, ConfirmDialogModule, DialogModule, CommonModule, TooltipModule, CheckboxModule, FormsModule],
+  imports: [ToastModule, ProgressSpinnerModule, TableModule, ToolbarModule, ButtonModule, IconFieldModule, InputIconModule, ConfirmDialogModule, DialogModule, CommonModule, TooltipModule, CheckboxModule, FormsModule, FloatLabelModule, ReactiveFormsModule, DatePickerModule, MessageModule, InputTextModule, AutoCompleteModule],
   providers: [MessageService, ConfirmationService],
   templateUrl: './sprint.component.html',
   styleUrl: './sprint.component.css'
 })
 export class SprintComponent {
+  usuarios = inject(StorageService).usuarios;
+  usuariosElegir = computed(() => this.usuarios().map(usu => {
+    return {
+      nombre: usu?.nombre,
+      alias: usu?.alias
+    }
+  }));
+  listaFiltradaResponsables: Usuario[] = [];
+  limiteSprintsContarSubidas = inject(StorageService).limiteSprintsContarSubidas;
+
   numerosSprints = inject(StorageService).numerosSprints;
   sprintSeleccionado = inject(StorageService).sprintSeleccionado;
   sprint = signal<Sprint | null>(null);
+  subidasSprint = computed<Subida[]>(() => this.sprint()?.subidas || []);
   fechaActual: Date = new Date();
+  subidaDialog: boolean = false;
   
   /* Util */
   entornos = EntornoEnum;
-
+  fb = inject(FormBuilder);
   confirmationService = inject(ConfirmationService);
+
+  formSubida: FormGroup = this.fb.group({
+    entorno: ['', [Validators.required]],
+    fechaSubida: [, [Validators.required]],
+    responsable: [, [Validators.required]],
+    idReferencia: [''],
+  });
+  listaEntornos = [EntornoEnum.DES, EntornoEnum.PRE, EntornoEnum.PRO];
+  listaFiltradaEntornos = [EntornoEnum.DES, EntornoEnum.PRE, EntornoEnum.PRO];
+
   constructor(private activatedRoute: ActivatedRoute, private storageService: StorageService, private messageService: MessageService) {
     this.activatedRoute.params.subscribe((params) => this.sprintSeleccionado.set(params['id'] || this.sprintSeleccionado()));
 
@@ -75,8 +103,59 @@ export class SprintComponent {
     });
   }
 
-  /* TODO: Las subidas ordenarlas por fecha descendente. Si no tiene fecha, se colocara primero */
-  nuevaSubida() {
+  anadirSubida() {
+    if (this.formSubida?.invalid) {
+      this.formSubida.markAllAsTouched();
+    } else if (this.subidasSprint().some(subida => esMismoDia(subida?.fechaSubida, this.formSubida?.get('fechaSubida')?.value))) {
+      this.messageService.add({ severity: 'error', summary: 'Atención', detail: 'Ya hay una subida programada para esa fecha', life: 3000 });
+    } else {
+      // Hacemos los cambios en la subida
+      const nuevasSubidas = [
+        ...this.subidasSprint(),
+        {
+          entorno: this.formSubida?.get('entorno')?.value,
+          fechaSubida: this.formSubida?.get('fechaSubida')?.value,
+          idReferencia: this.formSubida?.get('entorno')?.value == EntornoEnum.DES ? '' : this.formSubida?.get('idReferencia')?.value,
+          elementosSubida: [],
+        } as Subida
+      ];
+      // Creamos un nuevo objeto sprint con el array actualizado
+      this.sprint.set({
+        ...this.sprint(),
+        subidas: nuevasSubidas
+      });
+
+      // Actualizamos cambios
+      this.storageService.setDocumentByAddress(`${sessionStorage.getItem('contrasenaAcceso')!}/sprints/${this.sprintSeleccionado()}`, this.sprint() as Sprint, true).then((resp) => {
+        this.messageService.add({ severity: 'info', summary: 'Éxito', detail: 'Subida añadida con éxito', life: 3000 });
+        this.subidaDialog = false;
+      }).catch((err) => {
+        console.error(err);
+        this.messageService.add({ severity: 'error', summary: 'Hubo un error inesperado', detail: 'Vuelva a intentarlo más tarde', life: 3000 });
+      });
+    }
+  }
+
+  editarSubida(subida: Subida) {
+    // if (this.formSubida?.invalid) {
+    //   this.formSubida.markAllAsTouched();
+    // } else if (this.subidasSprint().some(subida => esMismoDia(subida?.fechaSubida, this.formSubida?.get('fechaSubida')?.value))) {
+    //   this.messageService.add({ severity: 'error', summary: 'Atención', detail: 'Ya hay una subida programada para esa fecha', life: 3000 });
+    // } else {
+    //   // Hacemos los cambios en la subida
+    //   if (this.subidasSprint().some(subida => esMismoDia(subida?.fechaSubida, this.formSubida?.get('fechaSubida')?.value)))
+
+    //   this.storageService.setDocumentByAddress(`${sessionStorage.getItem('contrasenaAcceso')!}/sprint/${this.sprintSeleccionado}`, this.sprint as Sprint).then((resp) => {
+    //     this.messageService.add({ severity: 'info', summary: 'Éxito', detail: this.formSubida?.get('id')?.value ? 'Cambios guardados con éxito' : 'Subida añadida con éxito', life: 3000 });
+    //     this.subidaDialog = false;
+    //   }).catch((err) => {
+    //     console.error(err);
+    //     this.messageService.add({ severity: 'error', summary: 'Hubo un error inesperado', detail: 'Vuelva a intentarlo más tarde', life: 3000 });
+    //   });
+    // }
+  }
+
+  eliminarSubida(fechaSubida: Date) {
     
   }
 
@@ -92,12 +171,24 @@ export class SprintComponent {
 
   }
 
-  editarSubida(subida: Subida) {
-    
-  }
-  
-  eliminarSubida(subida: Subida) {
+  filterEntornos(event: AutoCompleteCompleteEvent) {
+      let query = event.query;
 
+      this.listaFiltradaEntornos = this.listaEntornos.filter(entorno => !query || normalizarCadena(entorno)?.includes(normalizarCadena(query)));
+  }
+
+  filterResponsables(event: AutoCompleteCompleteEvent) {
+      let filtered: any[] = [];
+      let query = event.query;
+
+      for (let i = 0; i < (this.usuariosElegir() as any[]).length; i++) {
+          let responsable = (this.usuariosElegir() as any[])[i];
+          if (normalizarCadena(responsable?.alias).includes(normalizarCadena(query)) || normalizarCadena(responsable?.nombre).includes(normalizarCadena(query))) {
+              filtered.push(responsable);
+          }
+      }
+
+      this.listaFiltradaResponsables = filtered;
   }
 
   toPedirSubida() {
@@ -157,6 +248,10 @@ Un saludo`;
 
   esMismoDia(fechaSubida: Date | Timestamp | undefined | null) {
     return esMismoDia(fechaSubida, this.fechaActual);
+  }
+
+  ponerFocusInputPrincipal() {
+    ponerFocusInputPrincipal();
   }
 
 }

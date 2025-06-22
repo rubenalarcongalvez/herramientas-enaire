@@ -79,7 +79,7 @@ export function ponerFocusInputPrincipal() {
 }
 
 export function normalizarCadena(cadena: string) {
-    return String(cadena.toLowerCase()).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return String(cadena.toLowerCase()).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
 /**

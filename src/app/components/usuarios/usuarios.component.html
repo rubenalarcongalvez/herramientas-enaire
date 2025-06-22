@@ -49,16 +49,19 @@
                 <p-sortIcon field="cumpleanos"/>
             </th>
             <th pSortableColumn="distsUltimosSprints">
-                Dists
-                <p-sortIcon field="distsUltimosSprints"/>
+                <span class="mr-2">Dists</span>
+                <p-sortIcon class="mr-1" field="distsUltimosSprints"/>
+                <i class="pi pi-info-circle text-blue-500" [pTooltip]="'Solo contaran los últimos ' + limiteSprintsContarSubidas + ' sprints'"></i>
             </th>
             <th pSortableColumn="warsUltimosSprints">
-                Wars
-                <p-sortIcon field="warsUltimosSprints"/>
+                <span class="mr-2">Wars</span>
+                <p-sortIcon class="mr-1" field="warsUltimosSprints"/>
+                <i class="pi pi-info-circle text-blue-500" [pTooltip]="'Solo contaran los últimos ' + limiteSprintsContarSubidas + ' sprints'"></i>
             </th>
             <th pSortableColumn="earsUltimosSprints">
-                Ears
-                <p-sortIcon field="earsUltimosSprints"/>
+                <span class="mr-2">Ears</span>
+                <p-sortIcon class="mr-1" field="earsUltimosSprints"/>
+                <i class="pi pi-info-circle text-blue-500" [pTooltip]="'Solo contaran los últimos ' + limiteSprintsContarSubidas + ' sprints'"></i>
             </th>
             <th></th>
         </tr>
@@ -113,7 +116,7 @@
     <form [formGroup]="formUsuario!" (ngSubmit)="aplicarUsuario()" (keydown.enter)="aplicarUsuario()" class="flex flex-col items-center gap-4 w-full pt-2">
         <p-floatlabel variant="on" class="w-full">
             <input pInputText inputId="nombre" id="nombre" #nombre class="flex-auto w-full text-lg inputPrincipal" autocomplete="off" formControlName="nombre"/>
-            <label for="nombre">Nombre y apellidos</label>
+            <label for="nombre">Nombre y apellidos*</label>
         </p-floatlabel>
         @if (formUsuario?.get('nombre')?.dirty && formUsuario?.get('nombre')?.invalid) {
             <p-message severity="error" class="w-full">El nombre completo es obligatorio</p-message>
@@ -124,7 +127,7 @@
             <label for="alias">Alias</label>
         </p-floatlabel>
         <p-floatlabel variant="on" class="w-full">
-            <p-datepicker [firstDayOfWeek]="1" appendTo="body" formControlName="cumpleanos" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="cumpleanos" dateFormat="dd 'de' MM"/>
+            <p-datepicker showClear [firstDayOfWeek]="1" appendTo="body" formControlName="cumpleanos" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="cumpleanos" dateFormat="dd 'de' MM"/>
             <label for="cumpleanos">Cumpleaños</label>
         </p-floatlabel>
     </form>
@@ -146,7 +149,7 @@
 </p-dialog>
 
 <!-- Dias Libres -->
- <p-dialog 
+<p-dialog 
     [(visible)]="diasLibresDialog" 
     [modal]="true" 
     [dismissableMask]="false"
@@ -162,19 +165,19 @@
     
     <form [formGroup]="formUsuario!" (ngSubmit)="aplicarUsuario()" (keydown.enter)="aplicarUsuario()" class="flex flex-col items-center gap-4 w-full pt-2">
         <p-floatlabel variant="on" class="w-full">
-            <p-datepicker selectionMode="multiple" [readonlyInput]="true" [firstDayOfWeek]="1" appendTo="body" formControlName="vacaciones" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="vacaciones" dateFormat="dd/mm/yy"/>
+            <p-datepicker showClear selectionMode="multiple" [readonlyInput]="true" [firstDayOfWeek]="1" appendTo="body" formControlName="vacaciones" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="vacaciones" dateFormat="dd/mm/yy"/>
             <label for="vacaciones">Vacaciones</label>
         </p-floatlabel>
         <p-floatlabel variant="on" class="w-full">
-            <p-datepicker selectionMode="multiple" [readonlyInput]="true" [firstDayOfWeek]="1" appendTo="body" formControlName="asuntosPropios" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="asuntosPropios" dateFormat="dd/mm/yy"/>
+            <p-datepicker showClear selectionMode="multiple" [readonlyInput]="true" [firstDayOfWeek]="1" appendTo="body" formControlName="asuntosPropios" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="asuntosPropios" dateFormat="dd/mm/yy"/>
             <label for="asuntosPropios">Asuntos propios</label>
         </p-floatlabel>
         <p-floatlabel variant="on" class="w-full">
-            <p-datepicker selectionMode="multiple" [readonlyInput]="true" [firstDayOfWeek]="1" appendTo="body" formControlName="enfermedad" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="enfermedad" dateFormat="dd/mm/yy"/>
+            <p-datepicker showClear selectionMode="multiple" [readonlyInput]="true" [firstDayOfWeek]="1" appendTo="body" formControlName="enfermedad" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="enfermedad" dateFormat="dd/mm/yy"/>
             <label for="enfermedad">Bajas por enfermedad</label>
         </p-floatlabel>
         <p-floatlabel variant="on" class="w-full">
-            <p-datepicker selectionMode="multiple" [readonlyInput]="true" [firstDayOfWeek]="1" appendTo="body" formControlName="otrasAusencias" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="otrasAusencias" dateFormat="dd/mm/yy"/>
+            <p-datepicker showClear selectionMode="multiple" [readonlyInput]="true" [firstDayOfWeek]="1" appendTo="body" formControlName="otrasAusencias" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="otrasAusencias" dateFormat="dd/mm/yy"/>
             <label for="otrasAusencias">Otras ausencias</label>
         </p-floatlabel>
     </form>

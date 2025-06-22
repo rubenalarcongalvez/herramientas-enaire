@@ -12,6 +12,7 @@ export class StorageService {
   numerosSprints = signal<number[]>([]);
   sprintSeleccionado = signal<number | null>(null);
   usuarios = signal<Usuario[]>([]);
+  limiteSprintsContarSubidas: number = 3;
 
   constructor(private firestore: Firestore) {}
 
@@ -94,10 +95,13 @@ export class StorageService {
   /**
    * @description Crear o Modificar un documento por direccion
    */
-  setDocumentByAddress(url: string, data: any): Promise<void> {
+  setDocumentByAddress(url: string, data: any, editar: boolean = false): Promise<void> {
     let ruta = `herramientas-enaire/${url}`;
   
-    if (data?.id) {
+    if (editar) {
+      const docRef = doc(this.firestore, ruta);
+      return setDoc(docRef, data, { merge: true }); // merge para que solo actualice, no setee directamente todo
+    } else if (data?.id) {
       // Si hay ID, actualiza documento por su ID
       ruta += data.id;
       const docRef = doc(this.firestore, ruta);

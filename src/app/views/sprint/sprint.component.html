@@ -13,7 +13,7 @@
 </p-confirmDialog>
 
 @if (sprint()) {
-    <h1 class="flex items-center justify-between gap-2 mx-2">Sprint {{ sprintSeleccionado() }} <p-button label="Añadir subida" icon="pi pi-plus" class="mr-2 bg-diferente" (onClick)="nuevaSubida()"/></h1>
+    <h1 class="flex items-center justify-between gap-2 mx-2">Sprint {{ sprintSeleccionado() }} <p-button label="Añadir subida" icon="pi pi-plus" class="mr-2 bg-diferente" (onClick)="subidaDialog = true"/></h1>
     <section class="flex flex-col gap-2 justify-center items-center">
       @for (subida of sprint()?.subidas; track subida) {
         <div class="card mb-8 w-full">
@@ -49,7 +49,7 @@
                             <i class="pi pi-plus" pTooltip="Añadir elemento" tooltipPosition="left"></i>
                         </p-button>
                         <i class="pi pi-pen-to-square text-orange-400" pTooltip="Editar subida" tooltipPosition="left" (onClick)="editarSubida(subida)"></i>
-                        <i class="pi pi-trash text-red-600" pTooltip="Eliminar subida" (onClick)="eliminarSubida(subida)"></i>
+                        <i class="pi pi-trash text-red-600" pTooltip="Eliminar subida" (onClick)="eliminarSubida(subida.fechaSubida!)"></i>
                     </div>
                 </div>
               </ng-template>
@@ -103,3 +103,105 @@
 } @else {
     <p-progressSpinner mode="indeterminate" styleClass="mt-4"/>
 }
+
+<!-- Dialogos -->
+<!-- Anadir/Editar Subida -->
+<p-dialog 
+    [(visible)]="subidaDialog" 
+    [modal]="true" 
+    [dismissableMask]="false"
+    draggable="false"
+    maximizable
+    styleClass="p-3 w-[500px]"
+    (onShow)="ponerFocusInputPrincipal()"
+    (onHide)="formSubida.reset()"
+>
+    <ng-template pTemplate="header">
+        <h2>Añadir subida</h2>
+    </ng-template>
+    
+    <form [formGroup]="formSubida" (ngSubmit)="anadirSubida()" (keydown.enter)="anadirSubida()" class="flex flex-col items-center gap-4 w-full pt-2">
+        <p-floatlabel variant="on" class="w-full">
+            <p-autoComplete 
+                formControlName="entorno"
+                [suggestions]="listaFiltradaEntornos"
+                (completeMethod)="filterEntornos($event)"
+                completeOnFocus
+                dropdown
+                [forceSelection]="true"
+                #inputPrincipal
+                styleClass="w-full"
+                class="w-full"
+                appendTo="body"
+                showClear
+                >
+                    <ng-template let-elemento pTemplate="item">
+                        <span class="text-wrap">{{ elemento }}</span>
+                    </ng-template>
+            </p-autoComplete>
+            <label for="entorno">Entorno*</label>
+        </p-floatlabel>
+        @if (formSubida.get('entorno')?.touched && formSubida.get('entorno')?.invalid) {
+            <p-message severity="error" class="w-full">El entorno es obligatorio</p-message>
+        }
+
+        <p-floatlabel variant="on" class="w-full">
+            <p-autoComplete 
+                formControlName="responsable"
+                [suggestions]="listaFiltradaResponsables"
+                (completeMethod)="filterResponsables($event)"
+                completeOnFocus
+                dropdown
+                [forceSelection]="true"
+                #inputPrincipal
+                styleClass="w-full"
+                class="w-full"
+                appendTo="body"
+                showClear
+                optionLabel="alias"
+                >
+                    <ng-template let-elemento pTemplate="item">
+                        <div class="flex gap-2 flex-wrap items-center w-full" [pTooltip]="elemento?.alias ? elemento.nombre : ''" tooltipPosition="top">
+                            <span class="text-wrap">{{ elemento?.alias || elemento?.nombre }}</span>
+                            <!-- Util para seleccionar subidas -->
+                            <span tooltipPosition="bottom" [pTooltip]="'Dists generados en los últimos ' + limiteSprintsContarSubidas + ' sprints'" class="text-white p-1 bg-blue-500 rounded">{{ elemento?.distsUltimosSprints || 0 }}</span>
+                            <span tooltipPosition="bottom" [pTooltip]="'Wars generados en los últimos ' + limiteSprintsContarSubidas + ' sprints'" class="text-white p-1 bg-orange-500 rounded">{{ elemento?.warsUltimosSprints || 0 }}</span>
+                            <span tooltipPosition="bottom" [pTooltip]="'Ears generados en los últimos ' + limiteSprintsContarSubidas + ' sprints'" class="text-white p-1 bg-red-500 rounded">{{ elemento?.earsUltimosSprints || 0 }}</span>
+                        </div>
+                    </ng-template>
+            </p-autoComplete>
+            <label for="entorno">Responsable*</label>
+        </p-floatlabel>
+        @if (formSubida.get('responsable')?.touched && formSubida.get('responsable')?.invalid) {
+            <p-message severity="error" class="w-full">El responsable es obligatorio</p-message>
+        }
+
+        <p-floatlabel variant="on" class="w-full">
+            <p-datepicker showClear [firstDayOfWeek]="1" appendTo="body" formControlName="fechaSubida" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="fechaSubida" dateFormat="dd/mm/yy"/>
+            <label for="fechaSubida">Fecha Subida*</label>
+        </p-floatlabel>
+        @if (formSubida.get('fechaSubida')?.touched && formSubida.get('fechaSubida')?.invalid) {
+            <p-message severity="error" class="w-full">La fecha de subida es obligatoria</p-message>
+        }
+
+        <p-floatlabel variant="on" class="w-full" *ngIf="this.formSubida?.get('entorno')?.value != entornos.DES">
+            <input pInputText inputId="idReferencia" id="idReferencia" #idReferencia class="flex-auto w-full text-lg" autocomplete="off" formControlName="idReferencia"/>
+            <label for="idReferencia">ID referencia petición</label>
+        </p-floatlabel>
+    </form>
+
+    <ng-template pTemplate="footer">
+        <div class="flex justify-end gap-2 p-2">
+            <p-button 
+                label="Cancelar" 
+                [text]="true" 
+                styleClass="cancel"
+                (onClick)="subidaDialog = false" 
+            />
+            <p-button 
+                label="Añadir" 
+                (onClick)="anadirSubida()" 
+            />
+        </div>
+    </ng-template>
+</p-dialog>
