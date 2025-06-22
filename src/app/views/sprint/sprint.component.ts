@@ -63,6 +63,9 @@ export class SprintComponent {
     fechaSubida: [, [Validators.required]],
     responsable: [, [Validators.required]],
     idReferencia: [''],
+
+    elementosSubida: [[]],
+    fechaSubidaAnterior: [],
   });
   listaEntornos = [EntornoEnum.DES, EntornoEnum.PRE, EntornoEnum.PRO];
   listaFiltradaEntornos = [EntornoEnum.DES, EntornoEnum.PRE, EntornoEnum.PRO];
@@ -103,22 +106,49 @@ export class SprintComponent {
     });
   }
 
-  anadirSubida() {
+  abrirEditarSubida(subida: Subida) {
+    this.formSubida?.get('entorno')?.setValue(subida?.entorno);
+    this.formSubida?.get('fechaSubida')?.setValue(subida?.fechaSubida);
+    this.formSubida?.get('fechaSubidaAnterior')?.setValue(subida?.fechaSubida);
+    this.formSubida?.get('responsable')?.setValue(subida?.responsable);
+    this.formSubida?.get('idReferencia')?.setValue(subida?.idReferencia);
+    this.formSubida?.get('elementosSubida')?.setValue(subida?.elementosSubida || []);
+
+    this.subidaDialog = true;
+  }
+
+  aplicarSubida() {
     if (this.formSubida?.invalid) {
       this.formSubida.markAllAsTouched();
-    } else if (this.subidasSprint().some(subida => esMismoDia(subida?.fechaSubida, this.formSubida?.get('fechaSubida')?.value))) {
+      /* No puede coincidir con otra fecha, si ya tenia una fecha, esta queda excluida porque se modifica */
+    } else if ((this.formSubida?.get('fechaSubidaAnterior')?.value && (this.formSubida?.get('fechaSubidaAnterior')?.value != this.formSubida?.get('fechaSubida')?.value) && this.subidasSprint().some(subida => esMismoDia(subida?.fechaSubida, this.formSubida?.get('fechaSubida')?.value))) || (!this.formSubida?.get('fechaSubidaAnterior')?.value && this.subidasSprint().some(subida => esMismoDia(subida?.fechaSubida, this.formSubida?.get('fechaSubida')?.value)))) {
       this.messageService.add({ severity: 'error', summary: 'Atención', detail: 'Ya hay una subida programada para esa fecha', life: 3000 });
     } else {
       // Hacemos los cambios en la subida
-      const nuevasSubidas = [
-        ...this.subidasSprint(),
-        {
+      /* Si estamos editando, lo debemos sustituir, si no, anadimos */
+      let nuevasSubidas: Subida[] = [...this.subidasSprint()];
+      if (this.formSubida.get('fechaSubidaAnterior')?.value) {
+        const subidaExistente = nuevasSubidas.find(subida =>
+          subida.fechaSubida == this.formSubida.get('fechaSubidaAnterior')?.value
+        );
+        
+        if (subidaExistente) {
+          subidaExistente.entorno = this.formSubida.get('entorno')?.value;
+          subidaExistente.fechaSubida = this.formSubida.get('fechaSubida')?.value;
+          subidaExistente.responsable = this.formSubida.get('responsable')?.value;
+          subidaExistente.idReferencia = subidaExistente.entorno === EntornoEnum.DES ? '' : this.formSubida.get('idReferencia')?.value;
+          subidaExistente.elementosSubida = this.formSubida.get('elementosSubida')?.value || [];
+        }
+      } else {
+        nuevasSubidas.push({
           entorno: this.formSubida?.get('entorno')?.value,
           fechaSubida: this.formSubida?.get('fechaSubida')?.value,
+          responsable: this.formSubida?.get('responsable')?.value,
           idReferencia: this.formSubida?.get('entorno')?.value == EntornoEnum.DES ? '' : this.formSubida?.get('idReferencia')?.value,
-          elementosSubida: [],
-        } as Subida
-      ];
+          elementosSubida: this.formSubida?.get('elementosSubida')?.value || [],
+        } as Subida);
+      }
+
       // Creamos un nuevo objeto sprint con el array actualizado
       this.sprint.set({
         ...this.sprint(),
@@ -127,7 +157,7 @@ export class SprintComponent {
 
       // Actualizamos cambios
       this.storageService.setDocumentByAddress(`${sessionStorage.getItem('contrasenaAcceso')!}/sprints/${this.sprintSeleccionado()}`, this.sprint() as Sprint, true).then((resp) => {
-        this.messageService.add({ severity: 'info', summary: 'Éxito', detail: 'Subida añadida con éxito', life: 3000 });
+        this.messageService.add({ severity: 'info', summary: 'Éxito', detail: 'Subida ' + (this.formSubida.get('fechaSubidaAnterior')?.value ? 'editada' : 'añadida') + ' con éxito', life: 3000 });
         this.subidaDialog = false;
       }).catch((err) => {
         console.error(err);
@@ -136,27 +166,31 @@ export class SprintComponent {
     }
   }
 
-  editarSubida(subida: Subida) {
-    // if (this.formSubida?.invalid) {
-    //   this.formSubida.markAllAsTouched();
-    // } else if (this.subidasSprint().some(subida => esMismoDia(subida?.fechaSubida, this.formSubida?.get('fechaSubida')?.value))) {
-    //   this.messageService.add({ severity: 'error', summary: 'Atención', detail: 'Ya hay una subida programada para esa fecha', life: 3000 });
-    // } else {
-    //   // Hacemos los cambios en la subida
-    //   if (this.subidasSprint().some(subida => esMismoDia(subida?.fechaSubida, this.formSubida?.get('fechaSubida')?.value)))
-
-    //   this.storageService.setDocumentByAddress(`${sessionStorage.getItem('contrasenaAcceso')!}/sprint/${this.sprintSeleccionado}`, this.sprint as Sprint).then((resp) => {
-    //     this.messageService.add({ severity: 'info', summary: 'Éxito', detail: this.formSubida?.get('id')?.value ? 'Cambios guardados con éxito' : 'Subida añadida con éxito', life: 3000 });
-    //     this.subidaDialog = false;
-    //   }).catch((err) => {
-    //     console.error(err);
-    //     this.messageService.add({ severity: 'error', summary: 'Hubo un error inesperado', detail: 'Vuelva a intentarlo más tarde', life: 3000 });
-    //   });
-    // }
-  }
-
   eliminarSubida(fechaSubida: Date) {
-    
+    this.confirmationService.confirm({
+        header: '¿Seguro que desea eliminar esta subida?',
+        message: 'Esta elección no podrá deshacerse',
+        rejectButtonStyleClass: '!bg-white !border-none !text-black !p-button-sm hover:!bg-gray-100',
+        acceptButtonStyleClass: '!bg-red-500 !border-none !p-button-sm hover:!bg-red-400',
+        rejectLabel: 'Cancelar',
+        acceptLabel: 'Eliminar',
+        accept: () => {
+          const subidasFiltradas = [...this.subidasSprint()].filter(subida => subida?.fechaSubida != fechaSubida);
+          this.sprint.set({
+            ...this.sprint(),
+            subidas: subidasFiltradas
+          });
+
+          // Actualizamos cambios
+          this.storageService.setDocumentByAddress(`${sessionStorage.getItem('contrasenaAcceso')!}/sprints/${this.sprintSeleccionado()}`, this.sprint() as Sprint, true).then((resp) => {
+            this.messageService.add({ severity: 'info', summary: 'Éxito', detail: 'Subida eliminada con éxito', life: 3000 });
+            this.subidaDialog = false;
+          }).catch((err) => {
+            console.error(err);
+            this.messageService.add({ severity: 'error', summary: 'Hubo un error inesperado', detail: 'Vuelva a intentarlo más tarde', life: 3000 });
+          });
+        },
+    });
   }
 
   nuevoElementoSubida(elementosSubida: ElementoSubida[]) {
