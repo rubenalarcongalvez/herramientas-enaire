@@ -1,5 +1,17 @@
 <p-toast/>
 
+<p-confirmDialog styleClass="w-full sm:w-auto" draggable="false" >
+    <ng-template pTemplate="message" let-message>
+        <div class="flex flex-col items-center w-full gap-3 border-bottom-1">
+            <div class="flex w-full justify-between items-center gap-2">
+                <i [ngClass]="{'invisible': message?.message?.includes('Se solicita una subida')}" [class]="'pi ' + (message?.icon ? message.icon : 'pi-exclamation-circle') + ' text-6xl text-primary-500'"></i>
+                <i *ngIf="message?.message?.includes('Se solicita una subida')" class="cursor-pointer hover:!bg-slate-700 pi pi-copy bg-black text-white p-2 rounded" (click)="copiarMensajePortapapeles(message.message)" pTooltip="Copiar al portapapeles" tooltipPosition="left"></i>
+            </div>
+            <textarea *ngIf="message.message" class="w-full bg-transparent border-none p-0 resize-none" disabled>{{ message.message }}</textarea>
+        </div>
+    </ng-template>
+</p-confirmDialog>
+
 @if (sprint()) {
     <h1 class="flex items-center justify-between gap-2 mx-2">Sprint {{ sprintSeleccionado() }} <p-button label="Añadir subida" icon="pi pi-plus" class="mr-2 bg-diferente" (onClick)="nuevaSubida()"/></h1>
     <section class="flex flex-col gap-2 justify-center items-center">
@@ -17,11 +29,15 @@
               sortMode="multiple"
           >
               <ng-template #caption>
-                  <div class="flex items-center justify-between gap-2">
-                    <p-button [ngClass]="{'invisible': subida?.entorno?.includes(entornos.DES)}" (onClick)="toPedirSubida()">
-                        <span class="hidden sm:block">Pedir subida</span>
-                        <i class="pi pi-question" pTooltip="Pedir subida"></i>
-                    </p-button>
+                <div class="flex items-center justify-between gap-2">
+                    @if (subida?.idReferencia) {
+                        <h4 class="m-0 p-0">ID referencia: <span class="text-blue-500 fw-bold">{{ subida?.idReferencia }}</span></h4>
+                    } @else {
+                        <p-button [ngClass]="{'invisible': subida?.entorno?.includes(entornos.DES)}" (onClick)="toPedirSubida()">
+                            <span class="hidden sm:block">Pedir subida</span>
+                            <i class="pi pi-question" pTooltip="Pedir subida"></i>
+                        </p-button>
+                    }
                     <h4 class="m-0 text-center">Subida a 
                         <span [ngClass]="{'text-green-500': subida?.entorno?.includes(entornos.DES), 'text-orange-500': subida?.entorno?.includes(entornos.PRE), 'text-red-500': subida?.entorno?.includes(entornos.PRO)}">{{ subida.entorno }}</span>
                         <span *ngIf="subida?.fechaSubida"> - </span>
@@ -35,7 +51,7 @@
                         <i class="pi pi-pen-to-square text-orange-400" pTooltip="Editar subida" tooltipPosition="left" (onClick)="editarSubida(subida)"></i>
                         <i class="pi pi-trash text-red-600" pTooltip="Eliminar subida" (onClick)="eliminarSubida(subida)"></i>
                     </div>
-                  </div>
+                </div>
               </ng-template>
               <ng-template #header>
                   <tr>
@@ -77,8 +93,11 @@
                   </tr>
               </ng-template>
           </p-table>
-          <p-confirmDialog [style]="{ width: '450px' }" />
       </div>
+      } @empty {
+        <div>
+            No hay subidas en este Sprint por ahora.
+        </div>
       }
     </section>
 } @else {

@@ -4,5 +4,6 @@ export interface Usuario {
     // email?: string,
     nombre: string,
     alias: string, // Mote carinoso
-    cumpleanos: Date | string
+    cumpleanos: Date,
+    cumpleanosStr: string // Solo para el front
 }

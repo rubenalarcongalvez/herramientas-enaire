@@ -5,7 +5,7 @@
     [value]="usuariosTabla()"
     rowHover
     dataKey="id"
-    [globalFilterFields]="['nombre', 'alias', 'cumpleanos']"
+    [globalFilterFields]="['nombre', 'alias', 'cumpleanosStr']"
     responsiveLayout="stack"
     breakpoint="750px"
     [multiSortMeta]="sortMeta"
@@ -20,12 +20,6 @@
                 <h4 class="m-0 text-center">Usuarios</h4>
                 <i class="pi pi-info-circle text-blue-500" pTooltip="La elección del orden de la tabla se guardará para siguientes usos"></i>
             </div>
-            <p-iconfield iconPosition="left" class="ml-auto">
-                <p-inputicon>
-                    <i class="pi pi-search"></i>
-                </p-inputicon>
-                <input pInputText pSize="small" type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar..." />
-            </p-iconfield>
             <div class="flex gap-3 items-center">
                 <p-button (onClick)="usuarioDialog = true" class="flex gap-2 items-center">
                     <span>Añadir usuario</span>
@@ -33,6 +27,12 @@
                 </p-button>
             </div>
         </div>
+        <p-iconfield iconPosition="left" class="w-full mt-2">
+            <p-inputicon>
+                <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input pInputText pSize="small" type="text" class="w-full" [(ngModel)]="filtroSimple" (input)="dt.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar..." />
+        </p-iconfield>
     </ng-template>
     <ng-template #header>
         <tr>
@@ -54,13 +54,13 @@
     <ng-template #body let-usuario>
         <tr>
             <td>
-                <span class="flex items-center gap-2 my-2 w-full">{{ usuario?.alias }}</span>
+                <span class="flex items-center my-2 w-full m-0 p-0" [innerHTML]="usuario?.alias | highlightpipe : filtroSimple"></span>
             </td>
             <td>
-                <span class="flex items-center gap-2 my-2 w-full">{{ usuario?.nombre }}</span>
+                <span class="flex items-center my-2 w-full m-0 p-0" [innerHTML]="usuario?.nombre | highlightpipe : filtroSimple"></span>
             </td>
             <td>
-                <span class="flex w-full">{{ usuario.cumpleanos }}</span>
+                <span class="flex w-full m-0 p-0" [innerHTML]="usuario?.cumpleanosStr | highlightpipe : filtroSimple"></span>
             </td>
             <td>
                 <i class="pi pi-pencil mr-3 text-orange-500 cursor-pointer" (click)="ponerDatosEditarUsuario(usuario.id); usuarioDialog = true" pTooltip="Editar"></i>
@@ -91,7 +91,7 @@
     <form [formGroup]="formUsuario!" (ngSubmit)="aplicarUsuario()" (keydown.enter)="aplicarUsuario()" class="flex flex-col items-center gap-3 w-full">
         <input placeholder="Nombre y apellidos" pInputText id="nombre" #nombre class="flex-auto w-full text-lg inputPrincipal" autocomplete="off" formControlName="nombre"/>
         <input placeholder="Alias" pInputText id="alias" #alias class="flex-auto w-full text-lg" autocomplete="off" formControlName="alias"/>
-        <p-datepicker placeholder="Cumpleaños" [firstDayOfWeek]="1" appendTo="body" formControlName="cumpleanos" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="icondisplay" dateFormat="dd/mm"/>
+        <p-datepicker placeholder="Cumpleaños" [firstDayOfWeek]="1" appendTo="body" formControlName="cumpleanos" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="icondisplay" dateFormat="dd 'de' MM"/>
         @if (formUsuario?.get('nombre')?.dirty && formUsuario?.get('nombre')?.invalid) {
             <p-message severity="error" class="w-full">El nombre completo es obligatorio</p-message>
         }

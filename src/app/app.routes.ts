@@ -6,7 +6,7 @@ import { UsuariosComponent } from './components/usuarios/usuarios.component';
 
 export const routes: Routes = [
     {path: '', pathMatch: 'full', component: SprintComponent},
-    {path: 'Sprint/:id', component: SprintComponent},
+    {path: 'sprint/:id', component: SprintComponent},
     {path: 'estadisticas', component: EstadisticasComponent},
     {path: 'vacaciones', component: VacacionesComponent},
     

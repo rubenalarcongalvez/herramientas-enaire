@@ -199,5 +199,5 @@ export const appConfig: ApplicationConfig = {
         }
       }
     }),
-  ]
+  ],
 };

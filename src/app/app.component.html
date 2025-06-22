@@ -2,9 +2,9 @@
 
 <p-drawer blockScroll [(visible)]="visibleSidebar" header="Historial de SPs" styleClass="!w-full md:!w-80 lg:!w-[30rem]">
     <div class="flex flex-col gap-2 justify-center w-full panel-lateral">
-      <h4>SP 42</h4>
-      <h4>SP 41</h4>
-      <h4>SP 40</h4>
+      @for (numeroSprint of numerosSprints(); track numeroSprint) {
+        <h4 (click)="redirigir('/sprint/' + numeroSprint)" [ngClass]="{'ruta-activa2': numeroSprint == sprintSeleccionado()}">SP{{ numeroSprint }}</h4>
+      }
     </div>
 </p-drawer>
 
@@ -13,7 +13,7 @@
     <header class="flex gap-2 w-full bg-blue-600 text-white p-2 justify-between">
       <section class="flex gap-2 items-center">
         <img (click)="visibleSidebar = true" src="enaire.png" alt="Icono enaire" width="25" class="rounded cursor-pointer" pTooltip="Historial de Sprints">
-        <span class="cursor-pointer hover:text-cyan-400" [routerLink]="['/Sprint/', sprintSeleccionado()]" routerLinkActive="ruta-activa">SP{{sprintSeleccionado()}}</span>
+        <span class="cursor-pointer hover:text-cyan-400" [routerLink]="['/sprint/', sprintSeleccionado()]" routerLinkActive="ruta-activa">SP{{sprintSeleccionado()}}</span>
         <i class="pi pi-plus cursor-pointer" style="font-size: 15px;" pTooltip="Añadir Sprint"></i>
       </section>
       <section class="flex items-center justify-center gap-2">

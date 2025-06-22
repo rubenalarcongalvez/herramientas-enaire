@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { addDoc, collection, collectionData, deleteDoc, doc, docData, Firestore, getDoc, limit, orderBy, query, setDoc, Timestamp, where } from '@angular/fire/firestore';
+import { addDoc, collection, collectionData, deleteDoc, doc, docData, documentId, Firestore, getDoc, limit, orderBy, query, setDoc, Timestamp, where } from '@angular/fire/firestore';
 import { Usuario } from '../interfaces/usuario';
 import { map, Observable } from 'rxjs';
 
@@ -9,6 +9,7 @@ const USER_KEY = 'auth-user';
   providedIn: 'root',
 })
 export class StorageService {
+  numerosSprints = signal<number[]>([]);
   sprintSeleccionado = signal<number | null>(null);
   usuarios = signal<Usuario[]>([]);
 
@@ -57,30 +58,18 @@ export class StorageService {
   }
 
   /**
-   * Devuelve el nº del sprint “más nuevo” cuyo fechaInicio sea <= fechaActual.
+   * Devuelve los numeros de sprint de mas nuevo a menos nuevo
    */
-  obtenerNumeroUltimoSprint(
-    contrasenaAcceso: string,
-    fechaActual: Date
-  ): Observable<number | null> {
-    const ruta = `herramientas-enaire/${contrasenaAcceso}/sprints`;
-    const sprintsRef = collection(this.firestore, ruta);
-  
-    // Ultimo sprint por fechaInicio
-    const q = query(
-      sprintsRef,
-      where('fechaInicio', '<=', fechaActual),
-      orderBy('fechaInicio', 'desc'),
-      limit(1)
-    );
-  
-    // Observable que emite el nº o null
+  obtenerNumerosSprints(url: string): Observable<number[]> {
+    const colRef = collection(this.firestore, `herramientas-enaire/${url}/sprints`);
+    const q = query(colRef, orderBy(documentId(), 'desc'));
+
     return collectionData(q, { idField: 'id' }).pipe(
-      map(docs => {
-        if (!docs.length) return null;
-        const doc = docs[0] as any;
-        return Number(doc.id);
-      })
+      map(docs =>
+        docs
+          .map(d => Number((d as any).id))
+          .filter(n => !isNaN(n))
+      )
     );
   }
 

@@ -17,10 +17,11 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageModule } from 'primeng/message';
 import { DatePickerModule } from 'primeng/datepicker';
 import { ToastModule } from 'primeng/toast';
+import { HighlightPipe } from '../../shared/pipes/highlight.pipe';
 
 @Component({
   selector: 'app-usuarios',
-  imports: [TableModule, FormsModule, CommonModule, TooltipModule, ButtonModule, IconFieldModule, InputIconModule, InputTextModule, DialogModule, ConfirmDialogModule, MessageModule, AutoCompleteModule, ReactiveFormsModule, DatePickerModule, ToastModule],
+  imports: [TableModule, FormsModule, CommonModule, TooltipModule, ButtonModule, IconFieldModule, InputIconModule, InputTextModule, DialogModule, ConfirmDialogModule, MessageModule, AutoCompleteModule, ReactiveFormsModule, DatePickerModule, ToastModule, HighlightPipe],
   providers: [MessageService, ConfirmationService],
   templateUrl: './usuarios.component.html',
   styleUrl: './usuarios.component.css',
@@ -32,7 +33,7 @@ export class UsuariosComponent {
   usuarios = inject(StorageService).usuarios;
   usuariosTabla = computed(() => this.usuarios().map(u => ({
     ...u, // Para mantener una copia superficial
-    cumpleanos:
+    cumpleanosStr:
       typeof u.cumpleanos === 'string'
         ? u.cumpleanos
         : obtenerFechaCumpleString(u.cumpleanos as any)
@@ -47,6 +48,7 @@ export class UsuariosComponent {
     cumpleanos: [],
   });
   usuarioDialog: boolean = false;
+  filtroSimple: string = '';
 
   /* Configuracion */
   defaultSort: SortMeta[] = [{ field: 'alias', order: 1 }];

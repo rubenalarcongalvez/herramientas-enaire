@@ -7,7 +7,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StorageService } from './shared/services/storage.service';
 import { ToastModule } from 'primeng/toast';
@@ -25,28 +25,33 @@ import { Usuario } from './shared/interfaces/usuario';
 })
 export class AppComponent {
   sprintSeleccionado = inject(StorageService).sprintSeleccionado;
+  numerosSprints = inject(StorageService).numerosSprints;
   usuarios = inject(StorageService).usuarios;
   cargado = signal(false);
   visibleSidebar: boolean = false;
   fechaActual: Date = new Date();
   personasQueCumplenAnoHoy = computed(() => this.usuarios().filter(usu => esMismoDiaCumple(usu.cumpleanos as any, this.fechaActual)).map(usu => usu?.alias ? usu?.alias : usu?.nombre).join(' y '));
 
-  constructor(private storageService: StorageService, private messageService: MessageService) {}
+  constructor(private storageService: StorageService, private messageService: MessageService, private router: Router) {}
 
   ngOnInit() {
     const contrasenaAcceso = localStorage.getItem('contrasenaAcceso');
     if (contrasenaAcceso) {
-      this.storageService.obtenerNumeroUltimoSprint(contrasenaAcceso, this.fechaActual).subscribe({
+      this.storageService.obtenerNumerosSprints(contrasenaAcceso).subscribe({
         next: (resp) => {
+          this.numerosSprints.set(resp);
+          this.sprintSeleccionado.set(resp[0] || null);
           sessionStorage.setItem('contrasenaAcceso', contrasenaAcceso);
-          this.sprintSeleccionado.set(resp);
-          this.cargado.set(true)
+          this.cargado.set(true);
+          if (this.router.url == '/') {
+            this.router.navigateByUrl(`/sprint/${this.sprintSeleccionado()}`);
+          }
         }, error: (err) => {
           console.error(err);
           this.messageService.add({ severity: 'error', summary: 'No se pudo obtener la información', detail: 'Vuelva a iniciar sesión', life: 3000 });
           sessionStorage.removeItem('contrasenaAcceso');
           sessionStorage.removeItem('contrasenaAdmin');
-          this.cargado.set(true)
+          this.cargado.set(true);
         }
       });
       
@@ -66,6 +71,13 @@ export class AppComponent {
 
   get contrasenaAcceso(): string | undefined | null {
     return sessionStorage.getItem('contrasenaAcceso') || null; // Si no hay contrasena, no entras. Sacarla del localStorage si hay tambien
+  }
+
+  redirigir(url: string) {
+    this.visibleSidebar = false;
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      this.router.navigateByUrl(url);
+    });
   }
 
   cerrarSesion() {

@@ -23,8 +23,9 @@ export function obtenerFechaCumpleString(fecha: Date | Timestamp): string {
 
   const dia  = d.getDate().toString().padStart(2, '0');
   const mes  = d.toLocaleString('es-ES', { month: 'long' });
+  const mesCapitalizado = mes.charAt(0).toLocaleUpperCase('es-ES') + mes.slice(1);
 
-  return `${dia} de ${mes}`;
+  return `${dia} de ${mesCapitalizado}`;
 }
 
 export function esMismoDia(a: Date | Timestamp | undefined | null, b: Date | Timestamp | undefined | null): boolean {
