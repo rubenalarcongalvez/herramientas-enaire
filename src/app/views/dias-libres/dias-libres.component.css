@@ -1,3 +1,8 @@
 :host ::ng-deep.fc-toolbar-title {
     text-transform: capitalize !important;
 }
+
+:host ::ng-deep.fc-daygrid-day-frame:hover {
+    cursor: pointer;
+    background-color: rgb(225, 225, 225);
+}

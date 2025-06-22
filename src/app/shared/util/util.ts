@@ -127,3 +127,8 @@ export function adaptarFechaACalendario(
 
   return `${año}-${mes}-${día}`;
 }
+
+export function pasarDateStrAFormatoEspanol(fecha: string) {
+  const fechaArr = fecha.split('-');
+  return fechaArr[2] + '/' + fechaArr[1] + '/' + fechaArr[0];
+}

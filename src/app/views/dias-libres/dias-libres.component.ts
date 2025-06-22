@@ -1,10 +1,13 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { StorageService } from '../../shared/services/storage.service';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { adaptarFechaACalendario } from '../../shared/util/util';
+import { adaptarFechaACalendario, pasarDateStrAFormatoEspanol } from '../../shared/util/util';
 import { CalendarOptions } from '@fullcalendar/core';
+import interactionPlugin, { DateClickArg } from '@fullcalendar/interaction';
+import { CommonModule } from '@angular/common';
+import { DialogModule } from 'primeng/dialog';
 
 interface EventoCalendario {
   title: string;
@@ -12,16 +15,35 @@ interface EventoCalendario {
   color: string;
 }
 
+enum coloresEnum {
+  vacaciones = '#2563eb',
+  asuntosPropios = 'orangered',
+  enfermedad = '#16a34a',
+  otrasAusencias = '#a855f7',
+}
+
 @Component({
   selector: 'app-dias-libres',
   standalone: true,
-  imports: [FullCalendarModule, ProgressSpinnerModule],
+  imports: [FullCalendarModule, ProgressSpinnerModule, DialogModule, CommonModule],
   templateUrl: './dias-libres.component.html',
   styleUrl: './dias-libres.component.css'
 })
 export class DiasLibresComponent {
+  coloresEnum = coloresEnum;
+
   private storage = inject(StorageService);
   usuarios  = this.storage.usuarios;
+  infoDialog: boolean = false;
+  diaSeleccionado = signal<string>('');
+  diaSeleccionadoSpa = computed<string>(() => pasarDateStrAFormatoEspanol(this.diaSeleccionado()));
+
+  eventosMostrarDiaSeleccionado = computed(() => this.eventosCalendario().filter(evento => evento.date === this.diaSeleccionado()));
+
+  vacacionesMostrarDiaSeleccionado = computed(() => this.eventosMostrarDiaSeleccionado().filter(evento => evento.color === coloresEnum.vacaciones));
+  asuntosPropiosMostrarDiaSeleccionado = computed(() => this.eventosMostrarDiaSeleccionado().filter(evento => evento.color === coloresEnum.asuntosPropios));
+  enfermedadesMostrarDiaSeleccionado = computed(() => this.eventosMostrarDiaSeleccionado().filter(evento => evento.color === coloresEnum.enfermedad));
+  otrosMostrarDiaSeleccionado = computed(() => this.eventosMostrarDiaSeleccionado().filter(evento => evento.color === coloresEnum.otrasAusencias));
 
   /* Eventos derivados en tiempo real de usuarios() */
   eventosCalendario = computed<EventoCalendario[]>(() =>
@@ -35,20 +57,24 @@ export class DiasLibresComponent {
         }));
 
       return [
-        ...push(usu.vacaciones, '#2563eb'),
-        ...push(usu.asuntosPropios,'orangered'),
-        ...push(usu.enfermedad, '#16a34a'),
-        ...push(usu.otrasAusencias, '#a855f7')
+        ...push(usu.vacaciones, coloresEnum.vacaciones),
+        ...push(usu.asuntosPropios, coloresEnum.asuntosPropios),
+        ...push(usu.enfermedad, coloresEnum.enfermedad),
+        ...push(usu.otrasAusencias, coloresEnum.otrasAusencias)
       ];
     })
   );
 
   calendarOptions = computed<CalendarOptions>(() => ({
-    plugins: [dayGridPlugin],
+    plugins: [dayGridPlugin, interactionPlugin],
     initialView: 'dayGridMonth',
     locale: 'es',
     firstDay: 1,
     buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día' },
-    events: this.eventosCalendario()
+    events: this.eventosCalendario(),
+    dateClick: (info: DateClickArg) => {
+      this.diaSeleccionado.set(info.dateStr);
+      this.infoDialog = true;
+    }
   }));
 }
