@@ -178,7 +178,10 @@ export class AppComponent {
           this.messageService.add({ severity: 'info', summary: 'Éxito', detail: 'Sprint creado con éxito', life: 3000 });
           this.sprintSeleccionado.set(this.formNuevoSprint.get('numeroSprint')?.value);
           // this.router.navigateByUrl(`/sprint/${this.formNuevoSprint.get('numeroSprint')?.value}`); // TODO: No viable por ahora
-          location.href = `/sprint/${this.formNuevoSprint.get('numeroSprint')?.value}`;
+          const arrLocation = location.href.split('/');
+          arrLocation.pop();
+          location.href = arrLocation.join('/') + '/' + this.formNuevoSprint.get('numeroSprint')?.value;
+          location.reload();
           this.nuevoSprintDialog = false;
         }).catch((err) => {
           console.error(err);

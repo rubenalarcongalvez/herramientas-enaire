@@ -1,6 +1,6 @@
 .fondo-login {
   /* 🖼️ Ruta del archivo (ajusta la carpeta y la extensión) */
-  background-image: url('/herramientas-enaire/fondo-enaire-babel.png');
+  background-image: url('/herramientas-enaire/fondo-enaire-babel.png'); /* Se pone asi para subirlo correctamente a Github pages pero normalmente no haria falta */
   background-color: black;
   background-size: cover;
   background-repeat: no-repeat;

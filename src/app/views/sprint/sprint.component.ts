@@ -95,7 +95,16 @@ export class SprintComponent {
     this.activatedRoute.params.subscribe((params) => this.sprintSeleccionado.set(params['id'] || this.sprintSeleccionado()));
 
     if (this.sprintSeleccionado()) {
-      this.storageService.getDocumentByAddress(`${sessionStorage.getItem('contrasenaAcceso')}/sprints/${this.sprintSeleccionado()}`).subscribe({
+      this.buscarInfo();
+    }
+
+    this.formElemento.get('tipo')?.valueChanges.subscribe(() => {
+      this.formElemento.get('moduloSubido')?.updateValueAndValidity({ onlySelf: true });
+    });
+  }
+
+  private buscarInfo() {
+    this.storageService.getDocumentByAddress(`${sessionStorage.getItem('contrasenaAcceso')}/sprints/${this.sprintSeleccionado()}`).subscribe({
         next: (resp) => {
           if (resp) {
             let sprint: Sprint = resp;
@@ -112,7 +121,8 @@ export class SprintComponent {
               // Si ambos tienen fecha van por orden cronológico descendente
               return d2.getTime() - d1.getTime();
             });
-            this.sprint.set(sprint); 
+            /* Si solo estamos modificando el sprint actual, hacemos esto */      
+            this.sprint.set(sprint);
           } else {
             this.storageService.obtenerNumerosSprints(sessionStorage?.getItem('contrasenaAcceso')!).subscribe({
               next: (resp) => {
@@ -134,11 +144,6 @@ export class SprintComponent {
           sessionStorage.removeItem('contrasenaAcceso');
         }
       });
-    }
-
-    this.formElemento.get('tipo')?.valueChanges.subscribe(() => {
-      this.formElemento.get('moduloSubido')?.updateValueAndValidity({ onlySelf: true });
-    });
   }
 
   abrirEditarSubida(subida: Subida) {
@@ -365,7 +370,7 @@ export class SprintComponent {
     if (this.formNumeroSprint.invalid) {
       this.formNumeroSprint.markAllAsTouched();
     } else {
-      if (this.numerosSprints().filter(ns => ns != this.formNumeroSprint.get('numeroSprintAnterior')?.value).includes(this.formNumeroSprint.get('numeroSprint')?.value)) {
+      if (this.numerosSprints().some(nSP => nSP == this.formNumeroSprint.get('numeroSprint')?.value)) {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Ya existe un Sprint con ese número', life: 2000 });
       } else {
         this.sprint()!.id = this.formNumeroSprint.get('numeroSprint')?.value;
@@ -377,8 +382,11 @@ export class SprintComponent {
           this.storageService.deleteDocumentById(`${sessionStorage.getItem('contrasenaAcceso')!}/sprints`, this.formNumeroSprint.get('numeroSprintAnterior')?.value).then(() => {
             this.messageService.add({ severity: 'info', summary: 'Éxito', detail: 'Número de Sprint modificado con éxito', life: 3000 });
             this.sprintSeleccionado.set(this.formNumeroSprint.get('numeroSprint')?.value);
-            // this.router.navigateByUrl(`/sprint/${this.formNumeroSprint.get('numeroSprint')?.value}`); // TODO: No viable por ahora
-            location.href = `/sprint/${this.formNumeroSprint.get('numeroSprint')?.value}`;
+            // this.router.navigateByUrl(`/sprint/${this.formNumeroSprint.get('numeroSprint')?.value}`); // TODO Por ahora no es viable
+            const arrLocation = location.href.split('/');
+            arrLocation.pop();
+            location.href = arrLocation.join('/') + '/' + this.formNumeroSprint.get('numeroSprint')?.value;
+            location.reload();
             this.numeroSprintDialog = false;
           }).catch((err) => {
             console.error(err);
