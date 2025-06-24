@@ -21,12 +21,12 @@ import { DialogModule } from 'primeng/dialog';
 import { InputNumber } from 'primeng/inputnumber';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageModule } from 'primeng/message';
-import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TramoMGL } from './shared/interfaces/tramoMGL';
 
 @Component({
   selector: 'app-root',
-  imports: [FooterComponent, RouterOutlet, RouterLink, RouterLinkActive, AuthenticationComponent, TooltipModule, ButtonModule, CommonModule, ProgressSpinnerModule, ToastModule, DrawerModule, DialogModule, InputNumber, ReactiveFormsModule, MessageModule, ConfirmPopupModule],
+  imports: [FooterComponent, RouterOutlet, RouterLink, RouterLinkActive, AuthenticationComponent, TooltipModule, ButtonModule, CommonModule, ProgressSpinnerModule, ToastModule, DrawerModule, DialogModule, InputNumber, ReactiveFormsModule, MessageModule, ConfirmDialogModule],
   providers: [MessageService, ConfirmationService],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
@@ -215,10 +215,10 @@ export class AppComponent {
     }
   }
 
-  confirmarEliminarSprint(event: Event, numeroSprint: number) {
+  confirmarEliminarSprint(numeroSprint: number) {
     this.confirmationService.confirm({
-        target: event.target as EventTarget,
-        message: `¿Seguro que desea eliminar el Sprint ${numeroSprint}?`,
+        header: `¿Seguro que desea eliminar el Sprint ${numeroSprint}?`,
+        message: 'Esta elección no podrá deshacerse. NO HABRÁ VUELTA ATRÁS.',
         rejectButtonStyleClass: '!bg-white !border-none !text-black !p-button-sm hover:!bg-gray-100',
         acceptButtonStyleClass: '!bg-red-500 !border-none !p-button-sm hover:!bg-red-400',
         rejectLabel: 'Cancelar',
