@@ -1,6 +1,6 @@
 <p-toast/>
 
-<p-confirmDialog styleClass="w-full sm:w-auto" draggable="false" appendTo="body">
+<p-confirmDialog styleClass="sm:w-auto" draggable="false" appendTo="body">
   <ng-template pTemplate="message" let-message>
       <div class="flex flex-col items-center w-full gap-3 border-bottom-1">
           <div class="flex w-full items-center gap-2 {{message?.message?.includes('Se solicita una subida') ? 'justify-between' : 'justify-center'}}">
@@ -11,7 +11,7 @@
   </ng-template>
 </p-confirmDialog>
 
-<p-drawer blockScroll [(visible)]="visibleSidebar" header="Historial de SPs" styleClass="!w-full md:!w-80 lg:!w-[30rem]">
+<p-drawer [(visible)]="visibleSidebar" header="Historial de SPs" styleClass="!w-full md:!w-80 lg:!w-[30rem]">
   <div class="flex flex-col gap-2 justify-center w-full panel-lateral">
     @for (numeroSprint of numerosSprints(); track numeroSprint) {
       <div class="flex gap-2 items-center">
