@@ -19,10 +19,11 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { ToastModule } from 'primeng/toast';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { HighlightPipe } from '../../shared/pipes/highlight.pipe';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
   selector: 'app-usuarios',
-  imports: [TableModule, FormsModule, CommonModule, TooltipModule, ButtonModule, IconFieldModule, InputIconModule, InputTextModule, DialogModule, ConfirmDialogModule, MessageModule, AutoCompleteModule, ReactiveFormsModule, DatePickerModule, ToastModule, HighlightPipe, FloatLabelModule],
+  imports: [TableModule, FormsModule, CommonModule, TooltipModule, ButtonModule, IconFieldModule, InputIconModule, InputTextModule, DialogModule, ConfirmDialogModule, MessageModule, AutoCompleteModule, ReactiveFormsModule, DatePickerModule, ToastModule, HighlightPipe, FloatLabelModule, CheckboxModule],
   providers: [MessageService, ConfirmationService],
   templateUrl: './usuarios.component.html',
   styleUrl: './usuarios.component.css',
@@ -32,6 +33,7 @@ export class UsuariosComponent {
   private confirmationService = inject(ConfirmationService);
 
   limiteSprintsContarSubidas = inject(StorageService).limiteSprintsContarSubidas;
+  limiteVecesResponsable = inject(StorageService).limiteSprintsVecesResponsable;
   usuarios = inject(StorageService).usuarios;
   usuariosTabla = computed(() => this.usuarios().map(u => ({
     ...u, // Para mantener una copia superficial
@@ -52,6 +54,8 @@ export class UsuariosComponent {
     asuntosPropios: [[]],
     enfermedad: [[]],
     otrasAusencias: [[]],
+
+    exentoSubidas: [false]
   });
   usuarioDialog: boolean = false;
   diasLibresDialog: boolean = false;
@@ -77,6 +81,8 @@ export class UsuariosComponent {
     this.formUsuario?.get('asuntosPropios')?.setValue(usuario?.asuntosPropios || []);
     this.formUsuario?.get('enfermedad')?.setValue(usuario?.enfermedad || []);
     this.formUsuario?.get('otrasAusencias')?.setValue(usuario?.otrasAusencias || []);
+
+    this.formUsuario?.get('exentoSubidas')?.setValue(usuario?.exentoSubidas);
   }
 
   private messageService = inject(MessageService);
@@ -96,6 +102,8 @@ export class UsuariosComponent {
         asuntosPropios: this.formUsuario?.get('asuntosPropios')?.value,
         enfermedad: this.formUsuario?.get('enfermedad')?.value,
         otrasAusencias: this.formUsuario?.get('otrasAusencias')?.value,
+
+        exentoSubidas: this.formUsuario?.get('exentoSubidas')?.value,
       } as Usuario).then((resp) => {
         this.messageService.add({ severity: 'info', summary: 'Éxito', detail: this.formUsuario?.get('id')?.value ? 'Cambios guardados con éxito' : 'Usuario añadido con éxito', life: 3000 });
         this.usuarioDialog = false;

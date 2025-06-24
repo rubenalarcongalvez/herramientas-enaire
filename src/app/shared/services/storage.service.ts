@@ -1,5 +1,5 @@
-import { Injectable, signal } from '@angular/core';
-import { addDoc, collection, collectionData, deleteDoc, doc, docData, documentId, Firestore, getDoc, limit, orderBy, query, setDoc, Timestamp, where } from '@angular/fire/firestore';
+import { computed, Injectable, signal } from '@angular/core';
+import { collection, collectionData, deleteDoc, doc, docData, documentId, Firestore, getDoc, orderBy, query, setDoc, Timestamp } from '@angular/fire/firestore';
 import { Usuario } from '../interfaces/usuario';
 import { map, Observable } from 'rxjs';
 
@@ -12,7 +12,9 @@ export class StorageService {
   numerosSprints = signal<number[]>([]);
   sprintSeleccionado = signal<number | null>(null);
   usuarios = signal<Usuario[]>([]);
+  usuariosNoExentos = computed(() => this.usuarios().filter(usu => !usu?.exentoSubidas));
   limiteSprintsContarSubidas: number = 3;
+  limiteSprintsVecesResponsable: number = 5;
 
   constructor(private firestore: Firestore) {}
 
@@ -63,13 +65,12 @@ export class StorageService {
    */
   obtenerNumerosSprints(url: string): Observable<number[]> {
     const colRef = collection(this.firestore, `herramientas-enaire/${url}/sprints`);
-    const q = query(colRef, orderBy(documentId(), 'desc'));
-
-    return collectionData(q, { idField: 'id' }).pipe(
+    return collectionData(colRef, { idField: 'id' }).pipe(
       map(docs =>
         docs
           .map(d => Number((d as any).id))
           .filter(n => !isNaN(n))
+          .sort((a, b) => b - a) // Ordenar numéricamente de mayor a menor
       )
     );
   }

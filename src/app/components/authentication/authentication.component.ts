@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, EventEmitter, Output, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { AvatarModule } from 'primeng/avatar';
@@ -19,6 +19,7 @@ export class AuthenticationComponent {
   loadingEntrar = signal(false);
   error = signal(false);
   intentosFallidos = signal(0);
+  @Output() cargarInformacion = new EventEmitter();
 
   formulario?: FormGroup;
 
@@ -43,6 +44,7 @@ export class AuthenticationComponent {
             localStorage.setItem('contrasenaAcceso', this.formulario?.get('contrasena')?.value);
           }
           sessionStorage.setItem('contrasenaAcceso', this.formulario?.get('contrasena')?.value);
+          this.cargarInformacion.emit();
         } else {
           this.error.set(true);
           this.intentosFallidos.update((anterior) => ++anterior);

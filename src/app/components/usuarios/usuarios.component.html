@@ -51,31 +51,36 @@
             <th pSortableColumn="distsUltimosSprints">
                 <span class="mr-2">Dists</span>
                 <p-sortIcon class="mr-1" field="distsUltimosSprints"/>
-                <i class="pi pi-info-circle text-blue-500" [pTooltip]="'Solo contaran los últimos ' + limiteSprintsContarSubidas + ' sprints'"></i>
+                <i class="pi pi-info-circle text-blue-500" [pTooltip]="'Solo contarán los últimos ' + limiteSprintsContarSubidas + ' sprints'"></i>
             </th>
             <th pSortableColumn="warsUltimosSprints">
                 <span class="mr-2">Wars</span>
                 <p-sortIcon class="mr-1" field="warsUltimosSprints"/>
-                <i class="pi pi-info-circle text-blue-500" [pTooltip]="'Solo contaran los últimos ' + limiteSprintsContarSubidas + ' sprints'"></i>
+                <i class="pi pi-info-circle text-blue-500" [pTooltip]="'Solo contarán los últimos ' + limiteSprintsContarSubidas + ' sprints'"></i>
             </th>
             <th pSortableColumn="earsUltimosSprints">
                 <span class="mr-2">Ears</span>
                 <p-sortIcon class="mr-1" field="earsUltimosSprints"/>
-                <i class="pi pi-info-circle text-blue-500" [pTooltip]="'Solo contaran los últimos ' + limiteSprintsContarSubidas + ' sprints'"></i>
+                <i class="pi pi-info-circle text-blue-500" [pTooltip]="'Solo contarán los últimos ' + limiteSprintsContarSubidas + ' sprints'"></i>
+            </th>
+            <th pSortableColumn="vecesResponsableUltimosSprints">
+                <span class="mr-2">Responsable</span>
+                <p-sortIcon class="mr-1" field="vecesResponsableUltimosSprints"/>
+                <i class="pi pi-info-circle text-blue-500" [pTooltip]="'Solo contarán los últimos ' + limiteVecesResponsable + ' sprints'"></i>
             </th>
             <th></th>
         </tr>
     </ng-template>
     <ng-template #body let-usuario>
-        <tr>
+        <tr [pTooltip]="usuario?.exentoSubidas ? 'Usuario exento de generar y ser responsable de subidas' : ''">
             <td>
-                <span class="flex items-center my-2 w-full m-0 p-0 max-[750px]:justify-center" [innerHTML]="usuario?.alias | highlightpipe : filtroSimple"></span>
+                <span class="flex items-center my-2 w-full m-0 p-0 max-[750px]:justify-center" [ngClass]="{'text-blue-600': usuario?.exentoSubidas}" [innerHTML]="usuario?.alias | highlightpipe : filtroSimple"></span>
             </td>
             <td>
-                <span class="flex items-center my-2 w-full m-0 p-0 max-[750px]:justify-center" [innerHTML]="usuario?.nombre | highlightpipe : filtroSimple"></span>
+                <span class="flex items-center my-2 w-full m-0 p-0 max-[750px]:justify-center" [ngClass]="{'text-blue-600': usuario?.exentoSubidas}" [innerHTML]="usuario?.nombre | highlightpipe : filtroSimple"></span>
             </td>
             <td>
-                <span class="flex w-full m-0 p-0 max-[750px]:justify-center" [innerHTML]="usuario?.cumpleanosStr | highlightpipe : filtroSimple"></span>
+                <span class="flex w-full m-0 p-0 max-[750px]:justify-center" [ngClass]="{'text-blue-600': usuario?.exentoSubidas}" [innerHTML]="usuario?.cumpleanosStr | highlightpipe : filtroSimple"></span>
             </td>
             <td>
                 <span class="w-full flex text-white m-0 p-1 bg-blue-500 rounded justify-center">{{ usuario?.distsUltimosSprints || 0 }}</span>
@@ -85,6 +90,9 @@
             </td>
             <td>
                 <span class="w-full flex text-white m-0 p-1 bg-red-500 rounded justify-center">{{ usuario?.earsUltimosSprints || 0 }}</span>
+            </td>
+            <td>
+                <span class="w-full flex text-white m-0 p-1 bg-green-500 rounded justify-center">{{ usuario?.vecesResponsableUltimosSprints || 0 }}</span>
             </td>
             <td>
                 <i class="pi pi-calendar mr-3 text-blue-500 cursor-pointer" (click)="ponerDatosUsuario(usuario); diasLibresDialog = true" pTooltip="Días libres"></i>
@@ -130,6 +138,11 @@
             <p-datepicker showClear [firstDayOfWeek]="1" appendTo="body" formControlName="cumpleanos" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="cumpleanos" dateFormat="dd 'de' MM"/>
             <label for="cumpleanos">Cumpleaños</label>
         </p-floatlabel>
+
+        <div class="flex gap-2 items-center text-wrap">
+            <p-checkbox name="exentoSubidas" formControlName="exentoSubidas" inputId="exentoSubidas" [binary]="true"></p-checkbox>
+            <label for="exentoSubidas">Exento de generar dists y ser responsable de subida</label>
+        </div>
     </form>
 
     <ng-template pTemplate="footer">

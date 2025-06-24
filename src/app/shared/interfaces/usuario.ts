@@ -13,9 +13,12 @@ export interface Usuario {
     otrasAusencias: Date[],
 
     /* Hay que traerse los datos de otra parte */
+    /* Usar la variable limiteSprintsContarSubidas storage.service */
     distsUltimosSprints: number,
     warsUltimosSprints: number,
     earsUltimosSprints: number,
+    /* Usar la variable limiteSprintsVecesResponsable de storage.service */
+    vecesResponsableUltimosSprints: number
 
     cumpleanosStr: string // Solo para el front
 }
