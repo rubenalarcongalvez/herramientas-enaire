@@ -1,6 +1,6 @@
 .fondo-login {
   /* 🖼️ Ruta del archivo (ajusta la carpeta y la extensión) */
-  background-image: url('/fondo-enaire-babel.jpg');
+  background-image: url('/herramientas-enaire/fondo-enaire-babel.png');
   background-color: black;
   background-size: cover;
   background-repeat: no-repeat;
