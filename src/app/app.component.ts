@@ -216,8 +216,9 @@ export class AppComponent {
   }
 
   confirmarEliminarSprint(numeroSprint: number) {
+    this.visibleSidebar = false; // Para adaptarlo al movil mejor y se pueda hacer desde ahi
     this.confirmationService.confirm({
-        header: '¿Seguro que desea eliminar este Sprint?',
+        header: `¿Seguro que desea eliminar el Sprint ${numeroSprint}?`,
         message: 'Esta elección no podrá deshacerse. NO HABRÁ VUELTA ATRÁS.',
         rejectButtonStyleClass: '!bg-white !border-none !text-black !p-button-sm hover:!bg-gray-100',
         acceptButtonStyleClass: '!bg-red-500 !border-none !p-button-sm hover:!bg-red-400',
