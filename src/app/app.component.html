@@ -1,17 +1,17 @@
 <p-toast/>
 
-<p-drawer blockScroll [(visible)]="visibleSidebar" header="Historial de SPs" styleClass="!w-full md:!w-80 lg:!w-[30rem]">
-  <p-confirmDialog styleClass="w-full sm:w-auto" draggable="false" >
-    <ng-template pTemplate="message" let-message>
-        <div class="flex flex-col items-center w-full gap-3 border-bottom-1">
-            <div class="flex w-full items-center gap-2 {{message?.message?.includes('Se solicita una subida') ? 'justify-between' : 'justify-center'}}">
-                <i [ngClass]="{'invisible': message?.message?.includes('Se solicita una subida')}" [class]="'pi ' + (message?.icon ? message.icon : 'pi-exclamation-circle') + ' text-6xl text-primary-500'"></i>
-            </div>
-            <textarea *ngIf="message.message" class="w-full bg-transparent border-none p-0 resize-none" [ngClass]="{'text-center': !message?.message?.includes('Se solicita una subida')}" disabled>{{ message.message }}</textarea>
-        </div>
-    </ng-template>
-  </p-confirmDialog>
+<p-confirmDialog styleClass="w-full sm:w-auto" draggable="false" appendTo="body">
+  <ng-template pTemplate="message" let-message>
+      <div class="flex flex-col items-center w-full gap-3 border-bottom-1">
+          <div class="flex w-full items-center gap-2 {{message?.message?.includes('Se solicita una subida') ? 'justify-between' : 'justify-center'}}">
+              <i [ngClass]="{'invisible': message?.message?.includes('Se solicita una subida')}" [class]="'pi ' + (message?.icon ? message.icon : 'pi-exclamation-circle') + ' text-6xl text-primary-500'"></i>
+          </div>
+          <textarea *ngIf="message.message" class="w-full bg-transparent border-none p-0 resize-none" [ngClass]="{'text-center': !message?.message?.includes('Se solicita una subida')}" disabled>{{ message.message }}</textarea>
+      </div>
+  </ng-template>
+</p-confirmDialog>
 
+<p-drawer blockScroll [(visible)]="visibleSidebar" header="Historial de SPs" styleClass="!w-full md:!w-80 lg:!w-[30rem]">
   <div class="flex flex-col gap-2 justify-center w-full panel-lateral">
     @for (numeroSprint of numerosSprints(); track numeroSprint) {
       <div class="flex gap-2 items-center">
