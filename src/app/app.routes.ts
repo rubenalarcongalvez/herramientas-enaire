@@ -6,7 +6,7 @@ import { DiasLibresComponent } from './views/dias-libres/dias-libres.component';
 
 export const routes: Routes = [
     {path: '', pathMatch: 'full', component: SprintComponent},
-    {path: 'sprint/:id', component: SprintComponent},
+    {path: 'sprint/:id', component: SprintComponent, data: { renderMode: 'no-prerender' }},
     {path: 'estadisticas', component: EstadisticasComponent},
     {path: 'dias-libres', component: DiasLibresComponent},
     
