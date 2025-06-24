@@ -45,7 +45,7 @@
                 <p-sortIcon field="nombre" />
             </th>
             <th pSortableColumn="cumpleanos">
-                Cumpleaños
+                Cumple
                 <p-sortIcon field="cumpleanos"/>
             </th>
             <th pSortableColumn="distsUltimosSprints">
@@ -64,9 +64,14 @@
                 <i class="pi pi-info-circle text-blue-500" [pTooltip]="'Solo contarán los últimos ' + limiteSprintsContarSubidas + ' sprints'"></i>
             </th>
             <th pSortableColumn="vecesResponsableUltimosSprints">
-                <span class="mr-2">Responsable</span>
+                <span class="mr-2">Subidas</span>
                 <p-sortIcon class="mr-1" field="vecesResponsableUltimosSprints"/>
                 <i class="pi pi-info-circle text-blue-500" [pTooltip]="'Solo contarán los últimos ' + limiteVecesResponsable + ' sprints'"></i>
+            </th>
+            <th pSortableColumn="vecesMGLUltimosSprints">
+                <span class="mr-2">MGL</span>
+                <p-sortIcon class="mr-1" field="vecesMGLUltimosSprints"/>
+                <i class="pi pi-info-circle text-blue-500" [pTooltip]="'Solo contarán los últimos ' + limiteSprintsVecesMGL + ' sprints'"></i>
             </th>
             <th></th>
         </tr>
@@ -83,21 +88,26 @@
                 <span class="flex w-full m-0 p-0 max-[750px]:justify-center" [ngClass]="{'text-blue-600': usuario?.exentoSubidas}" [innerHTML]="usuario?.cumpleanosStr | highlightpipe : filtroSimple"></span>
             </td>
             <td>
-                <span class="w-full flex text-white m-0 p-1 bg-blue-500 rounded justify-center">{{ usuario?.distsUltimosSprints || 0 }}</span>
+                <span *ngIf="!usuario?.exentoSubidas" class="w-full flex text-white m-0 p-1 bg-blue-500 rounded justify-center">{{ usuario?.distsUltimosSprints || 0 }}</span>
             </td>
             <td>
-                <span class="w-full flex text-white m-0 p-1 bg-orange-500 rounded justify-center">{{ usuario?.warsUltimosSprints || 0 }}</span>
+                <span *ngIf="!usuario?.exentoSubidas" class="w-full flex text-white m-0 p-1 bg-orange-500 rounded justify-center">{{ usuario?.warsUltimosSprints || 0 }}</span>
             </td>
             <td>
-                <span class="w-full flex text-white m-0 p-1 bg-red-500 rounded justify-center">{{ usuario?.earsUltimosSprints || 0 }}</span>
+                <span *ngIf="!usuario?.exentoSubidas" class="w-full flex text-white m-0 p-1 bg-red-500 rounded justify-center">{{ usuario?.earsUltimosSprints || 0 }}</span>
             </td>
             <td>
-                <span class="w-full flex text-white m-0 p-1 bg-green-500 rounded justify-center">{{ usuario?.vecesResponsableUltimosSprints || 0 }}</span>
+                <span *ngIf="!usuario?.exentoSubidas" class="w-full flex text-white m-0 p-1 bg-green-500 rounded justify-center">{{ usuario?.vecesResponsableUltimosSprints || 0 }}</span>
             </td>
             <td>
-                <i class="pi pi-calendar mr-3 text-blue-500 cursor-pointer" (click)="ponerDatosUsuario(usuario); diasLibresDialog = true" pTooltip="Días libres"></i>
-                <i class="pi pi-pencil mr-3 text-orange-500 cursor-pointer" (click)="ponerDatosUsuario(usuario); usuarioDialog = true" pTooltip="Editar"></i>
-                <i class="pi pi-trash text-red-500 cursor-pointer" (click)="eliminarUsuario(usuario)" pTooltip="Eliminar"></i>
+                <span *ngIf="!usuario?.exentoSubidas" class="w-full flex text-white m-0 p-1 bg-purple-500 rounded justify-center">{{ usuario?.vecesMGLUltimosSprints || 0 }}</span>
+            </td>
+            <td>
+                <div class="flex gap-2 items-center flex-wrap">
+                    <i class="pi pi-calendar mr-3 text-blue-500 cursor-pointer" (click)="ponerDatosUsuario(usuario); diasLibresDialog = true" pTooltip="Días libres"></i>
+                    <i class="pi pi-pencil mr-3 text-orange-500 cursor-pointer" (click)="ponerDatosUsuario(usuario); usuarioDialog = true" pTooltip="Editar"></i>
+                    <i class="pi pi-trash text-red-500 cursor-pointer" (click)="eliminarUsuario(usuario)" pTooltip="Eliminar"></i>
+                </div>
             </td>
         </tr>
     </ng-template>

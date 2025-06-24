@@ -24,6 +24,7 @@ export class EstadisticasComponent {
     basicDataWars: any;
     basicDataEars: any;
     basicDataResponsables: any;
+    basicDataMGL: any;
 
     constructor() {
         const documentStyle = getComputedStyle(document.documentElement);
@@ -32,14 +33,18 @@ export class EstadisticasComponent {
         const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
     
         effect(() => {
-        const usuariosOrdenados = [...this.usuarios()].sort((u1, u2) => u2?.distsUltimosSprints - u1?.distsUltimosSprints);
+        const usuariosOrdenadosDists = [...this.usuarios()].sort((u2, u1) => u2?.distsUltimosSprints - u1?.distsUltimosSprints);
+        const usuariosOrdenadosWars = [...this.usuarios()].sort((u2, u1) => u2?.warsUltimosSprints - u1?.warsUltimosSprints);
+        const usuariosOrdenadosEars = [...this.usuarios()].sort((u2, u1) => u2?.earsUltimosSprints - u1?.earsUltimosSprints);
+        const usuariosOrdenadosResponsables = [...this.usuarios()].sort((u2, u1) => u2?.vecesResponsableUltimosSprints - u1?.vecesResponsableUltimosSprints);
+        const usuariosOrdenadosMGL = [...this.usuarios()].sort((u2, u1) => u2?.vecesMGLUltimosSprints - u1?.vecesMGLUltimosSprints);
     
         this.basicDataDists = {
-          labels: usuariosOrdenados.map(usu => usu?.alias || usu?.nombre),
+          labels: usuariosOrdenadosDists.map(usu => usu?.alias || usu?.nombre),
           datasets: [
             {
               label: 'Dists',
-              data: usuariosOrdenados.map(usu => usu.distsUltimosSprints),
+              data: usuariosOrdenadosDists.map(usu => usu.distsUltimosSprints),
               backgroundColor: 'rgba(54, 162, 235, 0.2)', // Azul claro
               borderColor: 'rgb(54, 162, 235)',           // Azul fuerte
               borderWidth: 1
@@ -48,11 +53,11 @@ export class EstadisticasComponent {
         };
         
         this.basicDataWars = {
-          labels: usuariosOrdenados.map(usu => usu?.alias || usu?.nombre),
+          labels: usuariosOrdenadosWars.map(usu => usu?.alias || usu?.nombre),
           datasets: [
             {
               label: 'Wars',
-              data: usuariosOrdenados.map(usu => usu.warsUltimosSprints),
+              data: usuariosOrdenadosWars.map(usu => usu.warsUltimosSprints),
               backgroundColor: 'rgba(255, 159, 64, 0.2)', // Naranja claro
               borderColor: 'rgb(255, 159, 64)',           // Naranja fuerte
               borderWidth: 1
@@ -61,11 +66,11 @@ export class EstadisticasComponent {
         };
         
         this.basicDataEars = {
-          labels: usuariosOrdenados.map(usu => usu?.alias || usu?.nombre),
+          labels: usuariosOrdenadosEars.map(usu => usu?.alias || usu?.nombre),
           datasets: [
             {
               label: 'Ears',
-              data: usuariosOrdenados.map(usu => usu.earsUltimosSprints),
+              data: usuariosOrdenadosEars.map(usu => usu.earsUltimosSprints),
               backgroundColor: 'rgba(255, 99, 132, 0.2)', // Rojo claro
               borderColor: 'rgb(255, 99, 132)',           // Rojo fuerte
               borderWidth: 1
@@ -74,13 +79,26 @@ export class EstadisticasComponent {
         };
         
         this.basicDataResponsables = {
-          labels: usuariosOrdenados.map(usu => usu?.alias || usu?.nombre),
+          labels: usuariosOrdenadosResponsables.map(usu => usu?.alias || usu?.nombre),
           datasets: [
             {
               label: 'Veces responsables de subida',
-              data: usuariosOrdenados.map(usu => usu.vecesResponsableUltimosSprints),
+              data: usuariosOrdenadosResponsables.map(usu => usu.vecesResponsableUltimosSprints),
               backgroundColor: 'rgba(75, 192, 192, 0.2)', // Verde claro (tipo turquesa)
               borderColor: 'rgb(75, 192, 192)',           // Verde fuerte
+              borderWidth: 1
+            }
+          ]
+        };
+        
+        this.basicDataMGL = {
+          labels: usuariosOrdenadosMGL.map(usu => usu?.alias || usu?.nombre),
+          datasets: [
+            {
+              label: 'Número de tramos MGL',
+              data: usuariosOrdenadosMGL.map(usu => usu.vecesMGLUltimosSprints),
+              backgroundColor: 'rgba(153, 102, 255, 0.2)', // Púrpura claro
+              borderColor: 'rgb(153, 102, 255)',           // Púrpura fuerte
               borderWidth: 1
             }
           ]

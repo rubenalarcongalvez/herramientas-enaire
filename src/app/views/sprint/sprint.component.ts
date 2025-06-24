@@ -412,7 +412,7 @@ export class SprintComponent {
 
       for (let i = 0; i < (this.usuarios() as any[]).length; i++) {
           let responsable = (this.usuarios() as any[])[i];
-          if (normalizarCadena(responsable?.alias).includes(normalizarCadena(query)) || normalizarCadena(responsable?.nombre).includes(normalizarCadena(query))) {
+          if ((responsable?.alias && normalizarCadena(responsable?.alias).includes(normalizarCadena(query))) || (responsable?.nombre && normalizarCadena(responsable?.nombre).includes(normalizarCadena(query)))) {
               filtered.push(responsable);
           }
       }
@@ -429,7 +429,7 @@ export class SprintComponent {
 
       for (let i = 0; i < (this.usuarios() as any[]).length; i++) {
           let responsable = (this.usuarios() as any[])[i];
-          if (normalizarCadena(responsable?.alias).includes(normalizarCadena(query)) || normalizarCadena(responsable?.nombre).includes(normalizarCadena(query))) {
+          if ((responsable?.alias && normalizarCadena(responsable?.alias).includes(normalizarCadena(query))) || (responsable?.nombre && normalizarCadena(responsable?.nombre).includes(normalizarCadena(query)))) {
               filtered.push(responsable);
           }
       }

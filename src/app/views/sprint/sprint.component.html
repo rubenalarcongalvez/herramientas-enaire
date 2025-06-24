@@ -98,7 +98,7 @@
                       <td><span class="flex justify-center w-full">{{ elemento?.tipo }}</span></td>
                       <td><span class="flex justify-center w-full">{{ elemento?.moduloSubido }}</span></td>
                       <td>
-                          @for (usuarioSubida of elemento.usuariosSubida; track usuarioSubida.alias) {
+                          @for (usuarioSubida of elemento.usuariosSubida; track usuarioSubida.nombre) {
                             <li class="flex items-center gap-2 my-2 w-full justify-center"><span>{{ usuarioSubida?.alias || usuarioSubida.nombre }}</span> <i *ngIf="usuarioSubida?.alias" class="pi pi-info-circle text-blue-500" [pTooltip]="usuarioSubida.nombre"></i></li>
                           }
                       </td>

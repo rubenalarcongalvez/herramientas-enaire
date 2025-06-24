@@ -19,6 +19,7 @@ export interface Usuario {
     earsUltimosSprints: number,
     /* Usar la variable limiteSprintsVecesResponsable de storage.service */
     vecesResponsableUltimosSprints: number
+    vecesMGLUltimosSprints: number
 
     cumpleanosStr: string // Solo para el front
 }

@@ -34,6 +34,7 @@ export class UsuariosComponent {
 
   limiteSprintsContarSubidas = inject(StorageService).limiteSprintsContarSubidas;
   limiteVecesResponsable = inject(StorageService).limiteSprintsVecesResponsable;
+  limiteSprintsVecesMGL = inject(StorageService).limiteSprintsVecesMGL;
   usuarios = inject(StorageService).usuarios;
   usuariosTabla = computed(() => this.usuarios().map(u => ({
     ...u, // Para mantener una copia superficial
@@ -50,10 +51,10 @@ export class UsuariosComponent {
     nombre: ['', [Validators.required]],
     alias: [],
     cumpleanos: [],
-    vacaciones: [[]],
-    asuntosPropios: [[]],
-    enfermedad: [[]],
-    otrasAusencias: [[]],
+    vacaciones: [],
+    asuntosPropios: [],
+    enfermedad: [],
+    otrasAusencias: [],
 
     exentoSubidas: [false]
   });
@@ -77,10 +78,10 @@ export class UsuariosComponent {
     this.formUsuario?.get('nombre')?.setValue(usuario?.nombre);
     this.formUsuario?.get('alias')?.setValue(usuario?.alias);
     this.formUsuario?.get('cumpleanos')?.setValue(usuario?.cumpleanos);
-    this.formUsuario?.get('vacaciones')?.setValue(usuario?.vacaciones || []);
-    this.formUsuario?.get('asuntosPropios')?.setValue(usuario?.asuntosPropios || []);
-    this.formUsuario?.get('enfermedad')?.setValue(usuario?.enfermedad || []);
-    this.formUsuario?.get('otrasAusencias')?.setValue(usuario?.otrasAusencias || []);
+    this.formUsuario?.get('vacaciones')?.setValue(usuario?.vacaciones?.length ? usuario?.vacaciones : null);
+    this.formUsuario?.get('asuntosPropios')?.setValue(usuario?.asuntosPropios?.length ? usuario?.asuntosPropios : null);
+    this.formUsuario?.get('enfermedad')?.setValue(usuario?.enfermedad?.length ? usuario?.enfermedad : null);
+    this.formUsuario?.get('otrasAusencias')?.setValue(usuario?.otrasAusencias?.length ? usuario?.otrasAusencias : null);
 
     this.formUsuario?.get('exentoSubidas')?.setValue(usuario?.exentoSubidas);
   }
@@ -98,12 +99,12 @@ export class UsuariosComponent {
         nombre: this.formUsuario?.get('nombre')?.value,
         alias: this.formUsuario?.get('alias')?.value,
         cumpleanos: this.formUsuario?.get('cumpleanos')?.value,
-        vacaciones: this.formUsuario?.get('vacaciones')?.value,
-        asuntosPropios: this.formUsuario?.get('asuntosPropios')?.value,
-        enfermedad: this.formUsuario?.get('enfermedad')?.value,
-        otrasAusencias: this.formUsuario?.get('otrasAusencias')?.value,
+        vacaciones: this.formUsuario?.get('vacaciones')?.value || [],
+        asuntosPropios: this.formUsuario?.get('asuntosPropios')?.value || [],
+        enfermedad: this.formUsuario?.get('enfermedad')?.value || [],
+        otrasAusencias: this.formUsuario?.get('otrasAusencias')?.value || [],
 
-        exentoSubidas: this.formUsuario?.get('exentoSubidas')?.value,
+        exentoSubidas: this.formUsuario?.get('exentoSubidas')?.value || false,
       } as Usuario).then((resp) => {
         this.messageService.add({ severity: 'info', summary: 'Éxito', detail: this.formUsuario?.get('id')?.value ? 'Cambios guardados con éxito' : 'Usuario añadido con éxito', life: 3000 });
         this.usuarioDialog = false;

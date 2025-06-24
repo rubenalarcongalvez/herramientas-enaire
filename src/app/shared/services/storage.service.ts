@@ -1,7 +1,8 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { collection, collectionData, deleteDoc, doc, docData, documentId, Firestore, getDoc, orderBy, query, setDoc, Timestamp } from '@angular/fire/firestore';
+import { collection, collectionData, deleteDoc, doc, docData, Firestore, getDoc, setDoc, Timestamp } from '@angular/fire/firestore';
 import { Usuario } from '../interfaces/usuario';
 import { map, Observable } from 'rxjs';
+import { TramoMGL } from '../interfaces/tramoMGL';
 
 const USER_KEY = 'auth-user';
 
@@ -13,8 +14,10 @@ export class StorageService {
   sprintSeleccionado = signal<number | null>(null);
   usuarios = signal<Usuario[]>([]);
   usuariosNoExentos = computed(() => this.usuarios().filter(usu => !usu?.exentoSubidas));
+  tramosMGL = signal<TramoMGL[]>([]);
   limiteSprintsContarSubidas: number = 3;
   limiteSprintsVecesResponsable: number = 5;
+  limiteSprintsVecesMGL: number = 4;
 
   constructor(private firestore: Firestore) {}
 

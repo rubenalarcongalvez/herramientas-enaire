@@ -22,6 +22,7 @@ import { InputNumber } from 'primeng/inputnumber';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MessageModule } from 'primeng/message';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TramoMGL } from './shared/interfaces/tramoMGL';
 
 @Component({
   selector: 'app-root',
@@ -35,6 +36,7 @@ export class AppComponent {
   numerosSprints = inject(StorageService).numerosSprints;
   ultimoSprint = computed(() => this.numerosSprints()[0] + 1);
   usuarios = inject(StorageService).usuarios;
+  tramosMGL = inject(StorageService).tramosMGL;
   cargado = signal(false);
   visibleSidebar: boolean = false;
   fechaActual: Date = new Date();
@@ -46,6 +48,7 @@ export class AppComponent {
 
   limiteSprintsContarSubidas: number = inject(StorageService).limiteSprintsContarSubidas;
   limiteSprintsVecesResponsable: number = inject(StorageService).limiteSprintsVecesResponsable;
+  limiteSprintsVecesMGL: number = inject(StorageService).limiteSprintsVecesMGL;
   limiteMayor = computed(() => 
     Math.max(this.limiteSprintsContarSubidas, this.limiteSprintsVecesResponsable)
   );
@@ -108,15 +111,16 @@ export class AppComponent {
   
     combineLatest([
       this.storageService.getCollectionByAddress<Usuario>(`${contrasena}/usuarios`),
-      this.storageService.getCollectionByAddress<Sprint>(`${contrasena}/sprints`)
+      this.storageService.getCollectionByAddress<Sprint>(`${contrasena}/sprints`),
+      this.storageService.getCollectionByAddress<TramoMGL>(`${contrasena}/tramosMGL`)
     ]).subscribe({
-      next: ([usuarios, sprints]) => {
+      next: ([usuarios, sprints, tramosMGL]) => {
         const ultimosSprints = sprints
           .sort((a, b) => Number(b.id) - Number(a.id))
           .slice(0, this.limiteMayor());
   
         const usuariosCompletos = usuarios.map(usuario => {
-          let dist = 0, war = 0, ear = 0, vecesResponsable = 0;
+          let dist = 0, war = 0, ear = 0, vecesResponsable = 0, vecesEncargadoMGL = 0;
   
           ultimosSprints.forEach((sprint, indice) => {
             sprint.subidas?.forEach(subida => {
@@ -133,13 +137,33 @@ export class AppComponent {
               });
             });
           });
+
+          /* Ordenamos de mas nuevo a mas antiguo */
+          tramosMGL.sort((t2, t1) => {
+            const val1 = t1.tramo?.[0];
+            const val2 = t2.tramo?.[0];
+          
+            if (val1 > val2) return 1;
+            if (val1 < val2) return -1;
+          
+            return 0;
+          });
+
+          this.tramosMGL.set(tramosMGL);
+
+          tramosMGL.forEach((tramo, indice) => {
+            if ((indice < this.limiteSprintsVecesMGL) && tramo?.usuariosEncargados?.some(usu => usu?.id === usuario.id)) {
+              ++vecesEncargadoMGL;
+            }
+          })
   
           return {
             ...usuario,
             distsUltimosSprints: dist,
             warsUltimosSprints: war,
             earsUltimosSprints: ear,
-            vecesResponsableUltimosSprints: vecesResponsable
+            vecesResponsableUltimosSprints: vecesResponsable,
+            vecesMGLUltimosSprints: vecesEncargadoMGL
           };
         });
   
