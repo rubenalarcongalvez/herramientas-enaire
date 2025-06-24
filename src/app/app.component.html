@@ -16,9 +16,13 @@
     @for (numeroSprint of numerosSprints(); track numeroSprint) {
       <div class="flex gap-2 items-center">
         <h4 class="grow" (click)="redirigir('/sprint/' + numeroSprint)" [ngClass]="{'ruta-activa2': numeroSprint == sprintSeleccionado()}">SP{{ numeroSprint }}</h4>
-        <div (click)="confirmarEliminarSprint(numeroSprint)">
-          <i class="cursor-pointer pi pi-trash text-red-600" pTooltip="Eliminar Sprint"></i>
-        </div>
+        <p-button 
+            icon="pi pi-trash text-red-500"
+            severity="secondary"
+            (onClick)="confirmarEliminarSprint(numeroSprint)" 
+            pTooltip="Eliminar Sprint"
+            tooltipPosition="left"
+        />
       </div>
     }
   </div>
