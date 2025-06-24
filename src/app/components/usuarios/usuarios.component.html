@@ -103,7 +103,7 @@
                 <span *ngIf="!usuario?.exentoSubidas" class="w-full flex text-white m-0 p-1 bg-purple-500 rounded justify-center">{{ usuario?.vecesMGLUltimosSprints || 0 }}</span>
             </td>
             <td>
-                <div class="flex gap-2 items-center flex-wrap">
+                <div class="flex gap-2 items-center max-[750px]:w-full max-[750px]:justify-between flex-wrap">
                     <i class="pi pi-calendar mr-3 text-blue-500 cursor-pointer" (click)="ponerDatosUsuario(usuario); diasLibresDialog = true" pTooltip="Días libres"></i>
                     <i class="pi pi-pencil mr-3 text-orange-500 cursor-pointer" (click)="ponerDatosUsuario(usuario); usuarioDialog = true" pTooltip="Editar"></i>
                     <i class="pi pi-trash text-red-500 cursor-pointer" (click)="eliminarUsuario(usuario)" pTooltip="Eliminar"></i>
