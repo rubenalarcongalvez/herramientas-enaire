@@ -3,6 +3,7 @@ import { collection, collectionData, deleteDoc, doc, docData, Firestore, getDoc,
 import { Usuario } from '../interfaces/usuario';
 import { map, Observable } from 'rxjs';
 import { TramoMGL } from '../interfaces/tramoMGL';
+import { Modulo } from '../interfaces/modulo';
 
 const USER_KEY = 'auth-user';
 
@@ -13,7 +14,9 @@ export class StorageService {
   numerosSprints = signal<number[]>([]);
   sprintSeleccionado = signal<number | null>(null);
   usuarios = signal<Usuario[]>([]);
+  usuariosExentos = computed(() => this.usuarios().filter(usu => usu?.exentoSubidas));
   usuariosNoExentos = computed(() => this.usuarios().filter(usu => !usu?.exentoSubidas));
+  modulos = signal<Modulo[]>([]);
   tramosMGL = signal<TramoMGL[]>([]);
   limiteSprintsContarSubidas: number = 3;
   limiteSprintsVecesResponsable: number = 5;

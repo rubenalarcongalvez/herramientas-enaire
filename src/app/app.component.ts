@@ -23,6 +23,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MessageModule } from 'primeng/message';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TramoMGL } from './shared/interfaces/tramoMGL';
+import { Modulo } from './shared/interfaces/modulo';
 
 @Component({
   selector: 'app-root',
@@ -37,6 +38,7 @@ export class AppComponent {
   ultimoSprint = computed(() => this.numerosSprints()[0] + 1);
   usuarios = inject(StorageService).usuarios;
   tramosMGL = inject(StorageService).tramosMGL;
+  modulos = inject(StorageService).modulos;
   cargado = signal(false);
   visibleSidebar: boolean = false;
   fechaActual: Date = new Date();
@@ -99,22 +101,23 @@ export class AppComponent {
     });
     
     /* Obtenemos los usuarios tambien */
-    this.cargarUsuariosConDatosTiempoReal();
+    this.cargarDatosTiempoReal();
   }
 
   get contrasenaAcceso(): string | undefined | null {
     return sessionStorage.getItem('contrasenaAcceso') || null; // Si no hay contrasena, no entras. Sacarla del localStorage si hay tambien
   }
 
-  private cargarUsuariosConDatosTiempoReal(): void {
+  private cargarDatosTiempoReal(): void {
     const contrasena = sessionStorage.getItem('contrasenaAcceso')!;
   
     combineLatest([
       this.storageService.getCollectionByAddress<Usuario>(`${contrasena}/usuarios`),
       this.storageService.getCollectionByAddress<Sprint>(`${contrasena}/sprints`),
-      this.storageService.getCollectionByAddress<TramoMGL>(`${contrasena}/tramosMGL`)
+      this.storageService.getCollectionByAddress<TramoMGL>(`${contrasena}/tramosMGL`),
+      this.storageService.getCollectionByAddress<Modulo>(`${contrasena}/modulos`),
     ]).subscribe({
-      next: ([usuarios, sprints, tramosMGL]) => {
+      next: ([usuarios, sprints, tramosMGL, modulos]) => {
         const ultimosSprints = sprints
           .sort((a, b) => Number(b.id) - Number(a.id))
           .slice(0, this.limiteMayor());
@@ -150,6 +153,11 @@ export class AppComponent {
           });
 
           this.tramosMGL.set(tramosMGL);
+          this.modulos.set(modulos.map(modulo => {
+            modulo.liderStr = modulo?.lider?.alias || modulo?.lider?.nombre;
+
+            return modulo;
+          }));
 
           tramosMGL.forEach((tramo, indice) => {
             if ((indice < this.limiteSprintsVecesMGL) && tramo?.usuariosEncargados?.some(usu => usu?.id === usuario.id)) {
@@ -163,7 +171,9 @@ export class AppComponent {
             warsUltimosSprints: war,
             earsUltimosSprints: ear,
             vecesResponsableUltimosSprints: vecesResponsable,
-            vecesMGLUltimosSprints: vecesEncargadoMGL
+            vecesMGLUltimosSprints: vecesEncargadoMGL,
+            modulosLider: this.modulos().filter(m => m.lider?.id === usuario.id),
+            modulosDesarrollador: this.modulos().filter(m => m?.desarrolladores?.some(d => d?.id === usuario.id))
           };
         });
   

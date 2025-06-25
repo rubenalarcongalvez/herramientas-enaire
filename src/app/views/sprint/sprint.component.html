@@ -273,7 +273,28 @@
         }
 
         <p-floatlabel variant="on" class="w-full" *ngIf="formElemento?.get('tipo')?.value == tiposElementos.dist">
-            <input pInputText inputId="moduloSubido" id="moduloSubido" #idReferencia class="flex-auto w-full text-lg" autocomplete="off" formControlName="moduloSubido"/>
+            <p-autoComplete 
+                formControlName="moduloSubido"
+                [suggestions]="listaFiltradaModulos"
+                (completeMethod)="filterModulos($event)"
+                dropdown
+                completeOnFocus
+                [forceSelection]="true"
+                styleClass="w-full"
+                class="w-full"
+                appendTo="body"
+                showClear
+                optionLabel="nombre"
+                optionValue="nombre"
+                >
+                    <ng-template let-elemento pTemplate="item">
+                        <div class="flex gap-2 flex-wrap items-center w-full justify-between">
+                            <div class="flex gap-2 items-center">
+                                <span class="text-wrap">{{ elemento?.nombre }}</span>
+                            </div>
+                        </div>
+                    </ng-template>
+            </p-autoComplete>
             <label for="moduloSubido">Módulo subido*</label>
         </p-floatlabel>
         @if (formElemento.get('moduloSubido')?.dirty && formElemento.get('moduloSubido')?.invalid) {
@@ -300,9 +321,11 @@
                             <div class="flex gap-2 items-center">
                                 <span class="text-wrap">{{ elemento?.alias || elemento?.nombre }}</span>
                                 <i *ngIf="elemento?.alias" class="pi pi-info-circle" [pTooltip]="elemento.nombre"></i>
+                                @if (this.formElemento.get('moduloSubido')?.value && usuarioEstaEnModuloSubido(elemento)) {
+                                    <i class="pi pi-th-large text-blue-500 font-bold" [pTooltip]="'Este usuario está en el módulo de ' + this.formElemento.get('moduloSubido')?.value"></i>
+                                }
                             </div>
                             <div class="flex gap-2 items-center">
-                                <!-- <span tooltipPosition="left" [pTooltip]="'Veces responsable en los últimos ' + limiteSprintsVecesResponsable + ' sprints'" class="text-white p-1 bg-blue-500 rounded">{{ elemento?.vecesResponsableUltimosSprints || 0 }}</span> -->
                                 <!-- Util para seleccionar subidas -->
                                 <span *ngIf="!this.formElemento.get('tipo')?.value || this.formElemento.get('tipo')?.value == tiposElementos.dist" tooltipPosition="left" [pTooltip]="'Dists generados en los últimos ' + limiteSprintsContarSubidas + ' sprints'" class="text-white p-1 bg-blue-500 rounded">{{ elemento?.distsUltimosSprints || 0 }}</span>
                                 <span *ngIf="!this.formElemento.get('tipo')?.value || this.formElemento.get('tipo')?.value == tiposElementos.war" tooltipPosition="left" [pTooltip]="'Wars generados en los últimos ' + limiteSprintsContarSubidas + ' sprints'" class="text-white p-1 bg-orange-500 rounded">{{ elemento?.warsUltimosSprints || 0 }}</span>

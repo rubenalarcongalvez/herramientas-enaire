@@ -39,23 +39,28 @@
       <section class="flex items-center justify-center gap-2">
         <article class="cursor-pointer gap-2 items-baseline hover:text-cyan-400 flex" routerLink="/estadisticas" routerLinkActive="ruta-activa">
           <i class="pi pi-chart-bar" pTooltip="Estadísticas"></i>
-          <span class="hidden sm:block">Estadísticas</span>
+          <span class="max-[750px]:hidden">Estadísticas</span>
         </article>
         <hr class="h-4">
         <article class="cursor-pointer gap-2 items-baseline hover:text-cyan-400 flex" routerLink="/dias-libres" routerLinkActive="ruta-activa">
           <i class="pi pi-calendar" pTooltip="Días libres"></i>
-          <span class="hidden sm:block">Días libres</span>
+          <span class="max-[750px]:hidden">Días libres</span>
         </article>
         <hr class="h-4">
         <article class="cursor-pointer gap-2 items-baseline hover:text-cyan-400 flex" routerLink="/incidencias-mgl" routerLinkActive="ruta-activa">
           <i class="pi pi-question-circle" pTooltip="Incidencias MGL"></i>
-          <span class="hidden sm:block" style="font-size: 14px;">Incidencias MGL</span>
+          <span class="max-[750px]:hidden">Incidencias MGL</span>
         </article>
       </section>
       <section class="flex items-center justify-center gap-2">
+        <article class="cursor-pointer gap-2 items-baseline hover:text-cyan-400 flex" routerLink="/modulos" routerLinkActive="ruta-activa">
+          <i class="pi pi-th-large" pTooltip="Módulos"></i>
+          <span class="max-[750px]:hidden">Módulos</span>
+        </article>
+        <hr class="h-4">
         <article class="cursor-pointer gap-2 items-baseline hover:text-cyan-400 flex" routerLink="/usuarios" routerLinkActive="ruta-activa">
           <i class="pi pi-user" pTooltip="Usuarios"></i>
-          <span class="hidden sm:block">Usuarios</span>
+          <span class="max-[750px]:hidden">Usuarios</span>
         </article>
         <hr class="h-4">
         <i class="pi pi-sign-out cursor-pointer" pTooltip="Cerrar sesión" (click)="cerrarSesion()"></i>

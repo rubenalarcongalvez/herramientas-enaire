@@ -30,6 +30,7 @@ import { AutoCompleteCompleteEvent, AutoCompleteModule } from 'primeng/autocompl
 import { Usuario } from '../../shared/interfaces/usuario';
 import { TipoElementoEnum } from '../../shared/enums/tipo-elemento';
 import { requiredSiOtroCampoEsDist } from '../../shared/validators/validadores';
+import { Modulo } from '../../shared/interfaces/modulo';
 
 @Component({
   selector: 'app-sprint',
@@ -40,6 +41,7 @@ import { requiredSiOtroCampoEsDist } from '../../shared/validators/validadores';
 })
 export class SprintComponent {
   usuarios = inject(StorageService).usuariosNoExentos;
+  modulos = inject(StorageService).modulos;
   listaFiltradaResponsables: Usuario[] = [];
   listaFiltradaUsuariosSubida: Usuario[] = [];
   limiteSprintsContarSubidas = inject(StorageService).limiteSprintsContarSubidas;
@@ -90,6 +92,7 @@ export class SprintComponent {
   listaFiltradaEntornos = [EntornoEnum.DES, EntornoEnum.PRE, EntornoEnum.PRO];
   listaTiposElementos: TipoElementoEnum[] = [TipoElementoEnum.dist, TipoElementoEnum.war, TipoElementoEnum.ear];
   listaFiltradaTiposElementos: TipoElementoEnum[] = [TipoElementoEnum.dist, TipoElementoEnum.war, TipoElementoEnum.ear];
+  listaFiltradaModulos: Modulo[] = [];
 
   constructor(private activatedRoute: ActivatedRoute, private storageService: StorageService, private messageService: MessageService) {
     this.activatedRoute.params.subscribe((params) => this.sprintSeleccionado.set(params['id'] || this.sprintSeleccionado()));
@@ -406,6 +409,15 @@ export class SprintComponent {
       this.listaFiltradaEntornos = this.listaEntornos.filter(entorno => !query || normalizarCadena(entorno)?.includes(normalizarCadena(query)));
   }
 
+  filterModulos(event: AutoCompleteCompleteEvent) {
+      let query = event.query;
+
+      let listaFinal = this.modulos().filter(modulo => !query || normalizarCadena(modulo?.nombre)?.includes(normalizarCadena(query)));
+      listaFinal.sort((m1, m2) => normalizarCadena(m1.nombre).localeCompare(normalizarCadena(m2.nombre))); // Asc
+
+      this.listaFiltradaModulos = this.modulos().filter(modulo => !query || normalizarCadena(modulo?.nombre)?.includes(normalizarCadena(query)));
+  }
+
   filterResponsables(event: AutoCompleteCompleteEvent) {
       let filtered: Usuario[] = [];
       let query = event.query;
@@ -434,10 +446,20 @@ export class SprintComponent {
           }
       }
 
-      /* Ordenamos por veces generado lo correspondiente de menor a mayor */
+      /* Ordenamos por veces generado lo correspondiente de menor a mayor, sin priorizar por modulo */
       switch (this.formElemento.get('tipo')?.value) {
         case TipoElementoEnum.dist: {
-          filtered.sort((u1, u2) => (u1?.distsUltimosSprints || 0) - (u2?.distsUltimosSprints || 0));
+          // Separamos la lista de los que coinciden con los modulos y los que no
+          if (this.formElemento.get('moduloSubido')?.value) {
+            const coinciden = filtered.filter(usuario => usuario?.modulosLider?.some(m => m?.nombre == this.formElemento.get('moduloSubido')?.value) || usuario?.modulosDesarrollador?.some(m => m?.nombre == this.formElemento.get('moduloSubido')?.value));
+            coinciden.sort((u1, u2) => (u1?.distsUltimosSprints || 0) - (u2?.distsUltimosSprints || 0));
+            const noCoinciden = filtered.filter(usuario => !usuario?.modulosLider?.some(m => m?.nombre == this.formElemento.get('moduloSubido')?.value) && !usuario?.modulosDesarrollador?.some(m => m?.nombre == this.formElemento.get('moduloSubido')?.value));
+            noCoinciden.sort((u1, u2) => (u1?.distsUltimosSprints || 0) - (u2?.distsUltimosSprints || 0));
+  
+            filtered = [...coinciden, ...noCoinciden]; // Ponemos la lista ya ordenada y con los usuarios del modulo seleccionado primero
+          } else {
+            filtered.sort((u1, u2) => (u1?.distsUltimosSprints || 0) - (u2?.distsUltimosSprints || 0));
+          }
           break;
         }
         case TipoElementoEnum.war: {
@@ -449,7 +471,6 @@ export class SprintComponent {
           break;
         }
         default: {
-          // Suma de todo lo generado
           filtered.sort((u1, u2) => 
             ((u1?.distsUltimosSprints || 0) + (u1?.warsUltimosSprints || 0) +(u1?.earsUltimosSprints || 0))
             - 
@@ -459,6 +480,10 @@ export class SprintComponent {
       }
 
       this.listaFiltradaUsuariosSubida = filtered;
+  }
+
+  usuarioEstaEnModuloSubido(usuario: Usuario) {
+    return usuario?.modulosLider?.some(m => m?.nombre == this.formElemento.get('moduloSubido')?.value) || usuario?.modulosDesarrollador?.some(m => m?.nombre == this.formElemento.get('moduloSubido')?.value);
   }
 
   filterTiposElementos(event: AutoCompleteCompleteEvent) {
