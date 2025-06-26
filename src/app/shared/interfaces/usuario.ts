@@ -28,7 +28,7 @@ export interface Usuario {
     cumpleanosStr: string // Solo para el front
 }
 
-/* Para guardar la referencia en BBDD sin referencias ciclicas */
+/* Para guardar la referencia en BBDD sin referencias ciclicas (solo usarlo si es necesario, como en modulos) */
 export interface UsuarioSimple {
     id: string,
     // token: string,
@@ -37,4 +37,18 @@ export interface UsuarioSimple {
     alias: string, // Mote carinoso
     cumpleanos: Date,
     exentoSubidas: boolean, // Si el usuario no tiene que subir nada (clientes ENAIRE por ejemplo)
+}
+
+export function generarUsuarioSimple(usuario: Usuario): UsuarioSimple | null {
+  if (!usuario) {
+    return null;
+  }
+
+  return {
+    id: usuario?.id,
+    nombre: usuario?.nombre,
+    alias: usuario?.alias,
+    cumpleanos: usuario?.cumpleanos,
+    exentoSubidas: usuario?.exentoSubidas
+  };
 }

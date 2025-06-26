@@ -27,10 +27,11 @@
     </ng-template>
     <ng-template #header>
         <tr>
-            <th pSortableColumn="tramo">
+            <th pSortableColumn="fechaInicioDate">
                 <div class="flex gap-2 justify-center items-center">
                     <span>Tramo Resolución</span>
-                    <p-sortIcon field="tramo" />
+                    <p-sortIcon field="fechaInicioDate" />
+                    <i class="pi pi-info-circle text-blue-500" pTooltip="Ordenado por su fecha de inicio"></i>
                 </div>
             </th>
             <th pSortableColumn="usuariosEncargados">
@@ -43,7 +44,7 @@
         </tr>
     </ng-template>
     <ng-template #body let-tramo>
-        <tr>
+        <tr [ngClass]="{'!bg-purple-200': fechaActualEntreTramo(tramo)}" [pTooltip]="fechaActualEntreTramo(tramo) ? 'Tramo actual' : ''">
             <td>
                 <span class="flex justify-center items-center my-2 w-full m-0 p-0">{{ obtenerFechaString(tramo?.tramo[0]) + ' - ' + obtenerFechaString(tramo?.tramo[1])}}</span>
             </td>
@@ -78,7 +79,7 @@
     
     <form [formGroup]="formTramo!" (ngSubmit)="aplicarTramo()" (keydown.enter)="aplicarTramo()" class="flex flex-col items-center gap-4 w-full pt-2">
         <p-floatlabel variant="on" class="w-full">
-            <p-datepicker showClear [firstDayOfWeek]="1" appendTo="body" formControlName="tramo" #inputPrincipal [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="tramo" dateFormat="dd/mm/yy" selectionMode="range" [readonlyInput]="true"/>
+            <p-datepicker showClear [firstDayOfWeek]="1" appendTo="body" formControlName="tramo" #inputPrincipal [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="tramo" dateFormat="dd/mm/yy" selectionMode="range"/>
             <label for="tramo">Tramo</label>
         </p-floatlabel>
         @if (formTramo.get('tramo')?.touched && formTramo.get('tramo')?.invalid) {

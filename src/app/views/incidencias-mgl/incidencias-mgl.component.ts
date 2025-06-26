@@ -19,14 +19,14 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-incidencias-mgl',
-  imports: [TableModule, ButtonModule, TooltipModule, DialogModule, ReactiveFormsModule, FloatLabel, DatePicker, MessageModule, AutoComplete, CommonModule, ToastModule, ConfirmDialogModule],
+  imports: [TableModule, ButtonModule, TooltipModule, DialogModule, ReactiveFormsModule, FloatLabel, DatePicker, MessageModule, AutoComplete, CommonModule, ToastModule, ConfirmDialogModule, CommonModule],
   providers: [MessageService, ConfirmationService],
   templateUrl: './incidencias-mgl.component.html',
   styleUrl: './incidencias-mgl.component.css'
 })
 export class IncidenciasMglComponent {
   storageService = inject(StorageService);
-  defaultSort: SortMeta[] = [{ field: 'tramo', order: -1 }]; // Descendiente
+  defaultSort: SortMeta[] = [{ field: 'fechaInicioDate', order: -1 }]; // Descendiente
   sortMeta: SortMeta[] = this.defaultSort;
   tramoDialog: boolean = false;
   tramosMGL = inject(StorageService).tramosMGL;
@@ -121,5 +121,20 @@ export class IncidenciasMglComponent {
 
   ponerFocusInputPrincipal() {
     ponerFocusInputPrincipal();
+  }
+
+  fechaActualEntreTramo(tramo: TramoMGL): boolean {
+    const [inicio, fin] = tramo.tramo;
+  
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+  
+    const inicioNormal = new Date(inicio);
+    inicioNormal.setHours(0, 0, 0, 0);
+  
+    const finNormal = new Date(fin);
+    finNormal.setHours(0, 0, 0, 0);
+  
+    return inicioNormal <= hoy && hoy <= finNormal;
   }
 }

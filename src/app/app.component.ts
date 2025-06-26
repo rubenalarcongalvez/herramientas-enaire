@@ -160,10 +160,11 @@ export class AppComponent {
           }));
 
           tramosMGL.forEach((tramo, indice) => {
+            tramo.fechaInicioDate = tramo?.tramo[0];
             if ((indice < this.limiteSprintsVecesMGL) && tramo?.usuariosEncargados?.some(usu => usu?.id === usuario.id)) {
               ++vecesEncargadoMGL;
             }
-          })
+          });
   
           return {
             ...usuario,

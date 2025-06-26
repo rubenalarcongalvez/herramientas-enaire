@@ -44,10 +44,13 @@
                             <i class="pi pi-question" pTooltip="Pedir subida"></i>
                         </p-button>
                     }
-                    <h4 class="m-0 text-center">Subida a 
+                    <h4 class="m-0 flex flex-wrap gap-2 justify-center mb-1">Subida a 
                         <span [ngClass]="{'text-green-500': subida?.entorno?.includes(entornos.DES), 'text-orange-500': subida?.entorno?.includes(entornos.PRE), 'text-red-500': subida?.entorno?.includes(entornos.PRO)}">{{ subida.entorno }}</span>
-                        <span *ngIf="subida?.fechaSubida"> - </span>
+                        <span *ngIf="subida?.fechaSubida">-</span>
                         <span [pTooltip]="esMismoDia(subida.fechaSubida) ? 'Es hoy la subida' : ''" [ngClass]="{'bg-blue-400 text-white p-1 rounded': esMismoDia(subida.fechaSubida)}">{{ obtenerFechaString(subida.fechaSubida!) }}</span>
+                        @if(subida?.horaSubida) {
+                            <span> a las <span class="rounded p-1 border border-solid border-blue-600">{{ obtenerHoraSubida(subida?.horaSubida) }}</span></span>
+                        }
                     </h4>
                     <div class="flex gap-3 items-center">
                         <p-button (onClick)="abrirAnadirEditarElementoSubida(subida.fechaSubida!)">
@@ -209,6 +212,15 @@
         @if (formSubida.get('fechaSubida')?.touched && formSubida.get('fechaSubida')?.invalid) {
             <p-message severity="error" class="w-full">La fecha de subida es obligatoria</p-message>
         }
+
+        <p-floatlabel variant="on" class="w-full">
+            <p-datepicker showClear (onFocus)="aplicarHoraSubidaActual()" formControlName="horaSubida" [iconDisplay]="'input'" [showIcon]="true" class="w-full" styleClass="w-full" inputId="horaSubida" [timeOnly]="true" appendTo="body">
+                <ng-template #inputicon let-clickCallBack="clickCallBack">
+                    <i class="pi pi-clock" (click)="clickCallBack($event)"></i>
+                </ng-template>
+            </p-datepicker>
+            <label for="horaSubida">Hora Subida</label>
+        </p-floatlabel>
 
         <p-floatlabel variant="on" class="w-full" *ngIf="formSubida?.get('entorno')?.value != entornos.DES">
             <input pInputText inputId="idReferencia" id="idReferencia" #idReferencia class="flex-auto w-full text-lg" autocomplete="off" formControlName="idReferencia"/>

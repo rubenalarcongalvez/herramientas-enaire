@@ -66,6 +66,7 @@ export class SprintComponent {
   formSubida: FormGroup = this.fb.group({
     entorno: ['', [Validators.required]],
     fechaSubida: [, [Validators.required]],
+    horaSubida: [],
     responsable: [, [Validators.required]],
     idReferencia: [''],
 
@@ -149,9 +150,16 @@ export class SprintComponent {
       });
   }
 
+  aplicarHoraSubidaActual() {
+    if (!this.formSubida?.get('horaSubida')?.value) {
+      this.formSubida?.get('horaSubida')?.setValue(new Date());
+    }
+  }
+
   abrirEditarSubida(subida: Subida) {
     this.formSubida?.get('entorno')?.setValue(subida?.entorno);
     this.formSubida?.get('fechaSubida')?.setValue(subida?.fechaSubida);
+    this.formSubida?.get('horaSubida')?.setValue(subida?.horaSubida);
     this.formSubida?.get('fechaSubidaAnterior')?.setValue(subida?.fechaSubida);
     this.formSubida?.get('responsable')?.setValue(subida?.responsable);
     this.formSubida?.get('idReferencia')?.setValue(subida?.idReferencia);
@@ -178,6 +186,7 @@ export class SprintComponent {
         if (subidaExistente) {
           subidaExistente.entorno = this.formSubida.get('entorno')?.value;
           subidaExistente.fechaSubida = this.formSubida.get('fechaSubida')?.value;
+          subidaExistente.horaSubida = this.formSubida.get('horaSubida')?.value || null;
           subidaExistente.responsable = this.formSubida.get('responsable')?.value;
           subidaExistente.idReferencia = subidaExistente.entorno === EntornoEnum.DES ? '' : this.formSubida.get('idReferencia')?.value;
           subidaExistente.elementosSubida = this.formSubida.get('elementosSubida')?.value || [];
@@ -188,6 +197,7 @@ export class SprintComponent {
         nuevasSubidas.push({
           entorno: this.formSubida?.get('entorno')?.value,
           fechaSubida: this.formSubida?.get('fechaSubida')?.value,
+          horaSubida: this.formSubida?.get('horaSubida')?.value || null,
           responsable: this.formSubida?.get('responsable')?.value,
           idReferencia: this.formSubida?.get('entorno')?.value == EntornoEnum.DES ? '' : this.formSubida?.get('idReferencia')?.value,
           elementosSubida: this.formSubida?.get('elementosSubida')?.value || [],
@@ -542,6 +552,17 @@ Un saludo`;
   obtenerFechaString(fecha: Date) {
     if (fecha) {
       return obtenerFechaString(fecha);
+    } else {
+      return '';
+    }
+  }
+
+  obtenerHoraSubida(hora: Date | undefined) {
+    if (hora) {
+      const horas = String(hora.getHours()).padStart(2, '0');
+      const minutos = String(hora.getMinutes()).padStart(2, '0');
+      
+      return `${horas}:${minutos}`;
     } else {
       return '';
     }

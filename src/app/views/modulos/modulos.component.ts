@@ -9,7 +9,7 @@ import { normalizarCadena, ponerFocusInputPrincipal, obtenerFechaString } from '
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FloatLabel } from 'primeng/floatlabel';
 import { MessageModule } from 'primeng/message';
-import { Usuario, UsuarioSimple } from '../../shared/interfaces/usuario';
+import { generarUsuarioSimple, Usuario, UsuarioSimple } from '../../shared/interfaces/usuario';
 import { AutoComplete, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { CommonModule } from '@angular/common';
 import { ToastModule } from 'primeng/toast';
@@ -75,9 +75,9 @@ export class ModulosComponent {
       this.storageService.setDocumentByAddress(`${sessionStorage.getItem('contrasenaAcceso')!}/modulos/`, {
         id: this.formModulo?.get('id')?.value,
         nombre: this.formModulo?.get('nombre')?.value,
-        gestores: this.formModulo?.get('gestores')?.value,
-        lider: this.formModulo?.get('lider')?.value,
-        desarrolladores: this.formModulo?.get('desarrolladores')?.value
+        gestores: this.formModulo?.get('gestores')?.value?.map((u: Usuario) => generarUsuarioSimple(u) as UsuarioSimple) || null,
+        lider: generarUsuarioSimple(this.formModulo?.get('lider')?.value) || null,
+        desarrolladores: this.formModulo?.get('desarrolladores')?.value?.map((u: Usuario) => generarUsuarioSimple(u) as UsuarioSimple) || null
       } as Modulo).then((resp) => {
         this.messageService.add({ severity: 'info', summary: 'Éxito', detail: this.formModulo?.get('id')?.value ? 'Cambios guardados con éxito' : 'Módulo añadido con éxito', life: 3000 });
         this.moduloDialog = false;
@@ -125,15 +125,7 @@ export class ModulosComponent {
       }
       /* Ordenamos alfabeticamente */
       filtered.sort((u1, u2) => (u1?.alias || u1.nombre).localeCompare((u2?.alias || u2.nombre)));
-      this.listaFiltradaDesarrolladores = filtered.map(u => {
-        return {
-          id: u?.id,
-          nombre: u?.nombre,
-          alias: u?.alias,
-          cumpleanos: u?.cumpleanos,
-          exentoSubidas: u?.exentoSubidas
-        } as UsuarioSimple
-      }); // Solo queremos estos datos y evitamos referencias ciclicas
+      this.listaFiltradaDesarrolladores = filtered;
   }
   
   filterGestores(event: AutoCompleteCompleteEvent) {
@@ -150,15 +142,7 @@ export class ModulosComponent {
       /* Ordenamos alfabeticamente */
       filtered.sort((u1, u2) => (normalizarCadena(u1?.alias || u1.nombre)).localeCompare((normalizarCadena(u2?.alias || u2.nombre))));
 
-      this.listaFiltradaGestores = filtered.map(u => {
-        return {
-          id: u?.id,
-          nombre: u?.nombre,
-          alias: u?.alias,
-          cumpleanos: u?.cumpleanos,
-          exentoSubidas: u?.exentoSubidas
-        } as UsuarioSimple
-      }); // Solo queremos estos datos y evitamos referencias ciclicas
+      this.listaFiltradaGestores = filtered;
   }
 
   obtenerFechaString(fecha: Date) {
