@@ -34,7 +34,7 @@ export class UsuariosComponent {
 
   limiteSprintsContarSubidas = inject(StorageService).limiteSprintsContarSubidas;
   limiteVecesResponsable = inject(StorageService).limiteSprintsVecesResponsable;
-  limiteSprintsVecesMGL = inject(StorageService).limiteSprintsVecesMGL;
+  limiteTramosContadosMGL = inject(StorageService).limiteTramosContadosMGL;
   usuarios = inject(StorageService).usuarios;
   usuariosTabla = computed(() => this.usuarios().map(u => ({
     ...u, // Para mantener una copia superficial

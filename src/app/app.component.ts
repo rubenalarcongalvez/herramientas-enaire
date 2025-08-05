@@ -50,7 +50,7 @@ export class AppComponent {
 
   limiteSprintsContarSubidas: number = inject(StorageService).limiteSprintsContarSubidas;
   limiteSprintsVecesResponsable: number = inject(StorageService).limiteSprintsVecesResponsable;
-  limiteSprintsVecesMGL: number = inject(StorageService).limiteSprintsVecesMGL;
+  limiteTramosContadosMGL: number = inject(StorageService).limiteTramosContadosMGL;
   limiteMayor = computed(() => 
     Math.max(this.limiteSprintsContarSubidas, this.limiteSprintsVecesResponsable)
   );
@@ -62,6 +62,7 @@ export class AppComponent {
   });
   router = inject(Router);
   confirmationService = inject(ConfirmationService);
+  haySprintsCreados = inject(StorageService).haySprintsCreados;
 
   constructor(private storageService: StorageService, private messageService: MessageService) {}
 
@@ -158,10 +159,10 @@ export class AppComponent {
 
             return modulo;
           }));
-
+          
           tramosMGL.forEach((tramo, indice) => {
             tramo.fechaInicioDate = tramo?.tramo[0];
-            if ((indice < this.limiteSprintsVecesMGL) && tramo?.usuariosEncargados?.some(usu => usu?.id === usuario.id)) {
+            if ((indice < this.limiteTramosContadosMGL) && tramo?.usuariosEncargados?.some(usu => usu?.id === usuario.id)) {
               ++vecesEncargadoMGL;
             }
           });
@@ -195,7 +196,7 @@ export class AppComponent {
   abrirAnadirNuevoSprint() {
     // Volvemos a actualizar su valor cada vez que abramos
     this.formNuevoSprint = this.fb.group({
-      numeroSprint: [this.ultimoSprint(), [Validators.min(1)]],
+      numeroSprint: [this.ultimoSprint() || 1, [Validators.min(1)]],
     });
     this.nuevoSprintDialog = true;
   }

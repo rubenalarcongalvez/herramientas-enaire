@@ -27,7 +27,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { MessageModule } from 'primeng/message';
 import { InputTextModule } from 'primeng/inputtext';
 import { AutoCompleteCompleteEvent, AutoCompleteModule } from 'primeng/autocomplete';
-import { Usuario } from '../../shared/interfaces/usuario';
+import { Usuario, UsuarioSimple } from '../../shared/interfaces/usuario';
 import { TipoElementoEnum } from '../../shared/enums/tipo-elemento';
 import { requiredSiOtroCampoEsDist } from '../../shared/validators/validadores';
 import { Modulo } from '../../shared/interfaces/modulo';
@@ -95,6 +95,8 @@ export class SprintComponent {
   listaFiltradaTiposElementos: TipoElementoEnum[] = [TipoElementoEnum.dist, TipoElementoEnum.war, TipoElementoEnum.ear];
   listaFiltradaModulos: Modulo[] = [];
 
+  haySprintsCreados = inject(StorageService).haySprintsCreados;
+
   constructor(private activatedRoute: ActivatedRoute, private storageService: StorageService, private messageService: MessageService) {
     this.activatedRoute.params.subscribe((params) => this.sprintSeleccionado.set(params['id'] || this.sprintSeleccionado()));
 
@@ -130,11 +132,15 @@ export class SprintComponent {
           } else {
             this.storageService.obtenerNumerosSprints(sessionStorage?.getItem('contrasenaAcceso')!).subscribe({
               next: (resp) => {
-                this.numerosSprints.set(resp);
-                this.sprintSeleccionado.set(resp[0] || null);
-                this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-                  this.router.navigateByUrl(`/sprint/${this.sprintSeleccionado()}`);
-                });
+                if (resp?.length) {
+                  this.numerosSprints.set(resp);
+                  this.sprintSeleccionado.set(resp[0] || null);
+                  this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+                    this.router.navigateByUrl(`/sprint/${this.sprintSeleccionado()}`);
+                  });
+                } else {
+                  this.haySprintsCreados.set(false);
+                }
               }, error: (err) => {
                 console.error(err);
                 this.messageService.add({ severity: 'error', summary: 'No se pudo obtener la información', detail: 'Vuelva a iniciar sesión', life: 3000 });
@@ -266,6 +272,7 @@ export class SprintComponent {
   aplicarElementoSubida() {
     // Primero, obtenemos la subida correspondiente
     let subidaEnlazada = computed<Subida>(() => this.subidasSprint().find(subida => subida?.fechaSubida == this.formElemento.get('fechaSubida')?.value)!);
+
     // Comprobamos que no se pongan datos erroneos
     if (this.formElemento?.valid && this.formElemento.get('tipo')?.value != TipoElementoEnum.dist) {
       this.formElemento.get('moduloSubido')?.setValue('');
@@ -275,7 +282,7 @@ export class SprintComponent {
       this.formElemento.markAllAsTouched();
       this.formElemento.get('moduloSubido')?.markAsDirty();
       /* No puede coincidir con otro elemento existente a no ser que estemos editando */
-    } else if (this.formElemento?.get('tipoAnterior')?.value && (subidaEnlazada().elementosSubida?.filter(ele => !((ele.tipo == this.formElemento?.get('tipoAnterior')?.value) &&       (ele.tipo == this.formElemento?.get('moduloSubidoAnterior')?.value))).some(ele => (normalizarCadena(ele.tipo || '') == normalizarCadena(this.formElemento?.get('tipo')?.value || '')) && (normalizarCadena(ele.moduloSubido || '') == normalizarCadena(this.formElemento?.get('moduloSubido')?.value || ''))))
+    } else if (this.formElemento?.get('tipoAnterior')?.value && (subidaEnlazada().elementosSubida?.filter(ele => !((ele.tipo == this.formElemento?.get('tipoAnterior')?.value) &&       (ele?.tipo == this.formElemento?.get('moduloSubidoAnterior')?.value))).some(ele => (normalizarCadena(ele.tipo || '') == normalizarCadena(this.formElemento?.get('tipo')?.value || '')) && (normalizarCadena(ele.moduloSubido || '') == normalizarCadena(this.formElemento?.get('moduloSubido')?.value || ''))))
         ||
       (!this.formElemento?.get('tipoAnterior')?.value && subidaEnlazada().elementosSubida?.some(ele => (normalizarCadena(ele.tipo || '') == normalizarCadena(this.formElemento?.get('tipo')?.value || '')) && (normalizarCadena(ele.moduloSubido || '') == normalizarCadena(this.formElemento?.get('moduloSubido')?.value || ''))))
     ) {
@@ -298,7 +305,13 @@ export class SprintComponent {
           if (elementoExistente) {
             elementoExistente.tipo = this.formElemento.get('tipo')?.value;
             elementoExistente.moduloSubido = this.formElemento.get('moduloSubido')?.value;
-            elementoExistente.usuariosSubida = this.formElemento.get('usuariosSubida')?.value;
+            elementoExistente.usuariosSubida = this.formElemento.get('usuariosSubida')?.value?.map((u: UsuarioSimple) => ({
+              id: u?.id || null,
+              nombre: u.nombre || null,
+              alias: u.alias || null,
+              exentoSubidas: u.exentoSubidas ?? false,
+              cumpleanos: u.cumpleanos ?? null,
+            })) || [];
           } else {
             console.error('No se ha encontrado el elemento existente');
           }
@@ -307,7 +320,13 @@ export class SprintComponent {
             tipo: this.formElemento.get('tipo')?.value,
             moduloSubido: this.formElemento.get('moduloSubido')?.value,
             completado: false,
-            usuariosSubida: this.formElemento.get('usuariosSubida')?.value
+            usuariosSubida: this.formElemento.get('usuariosSubida')?.value?.map((u: UsuarioSimple) => ({
+              id: u?.id || null,
+              nombre: u.nombre || null,
+              alias: u.alias || null,
+              exentoSubidas: u.exentoSubidas ?? false,
+              cumpleanos: u.cumpleanos ?? null,
+            })) || []
           });
         }
       } else {
@@ -340,15 +359,22 @@ export class SprintComponent {
         rejectLabel: 'Cancelar',
         acceptLabel: 'Eliminar',
         accept: () => {
-          const subidas = [...this.subidasSprint()];
-          subidas.map(subida => {
-            let subidaRes = subida;
-            subidaRes.elementosSubida = subidaRes?.elementosSubida?.filter(ele => !(subidaRes?.fechaSubida == fechaSubida && ele?.tipo == elemento?.tipo && ele?.moduloSubido == elemento?.moduloSubido));
-            return subidaRes;
-          }); // Quitamos el elemento
+          const subidasActualizadas = this.subidasSprint().map(subida => {
+            if (subida.fechaSubida !== fechaSubida) {
+              return subida
+            }; // No toca
+          
+            return {
+              ...subida,
+              elementosSubida: subida.elementosSubida?.filter(ele =>
+                !(ele.tipo === elemento?.tipo && ele.moduloSubido === elemento?.moduloSubido)
+              )
+            };
+          }); // Se elimina el elemento
+        
           this.sprint.set({
             ...this.sprint(),
-            subidas: subidas
+            subidas: subidasActualizadas
           });
 
           // Actualizamos cambios
@@ -511,18 +537,18 @@ En las máquinas de ETNAJ zzvx0708/zzvx0709 desplegar el EAR (ETNAJ_EAR-2.39.ear
 
 Se ha dejado el EAR de pruebas en la ruta: 
 
-\\\\repositorio.nav.es\\Fuentes_de_aplicaciones\\ETNAJ\\[ENTORNO]\\SERVIDOR_ETNA 
+\\\\repositorio.nav.es\\Fuentes_de_aplicaciones\\NAS_ETNAJ\\[ENTORNO]\\SERVIDOR_ETNA 
 
 Necesitamos también que se despliegue el WAR (etnaApp.war) que corresponde a los servicios web en las máquinas zzvx1031/zzvx1032 
 
 Se ha dejado el WAR de pruebas en la ruta: 
 
-\\\\repositorio.nav.es\\Fuentes_de_aplicaciones\\ETNAJ\\[ENTORNO]\\ETNAJ_WSREST 
+\\\\repositorio.nav.es\\Fuentes_de_aplicaciones\\NAS_ETNAJ\\[ENTORNO]\\ETNAJ_WSREST 
 
 Adicionalmente a ello necesitamos que se copien los ficheros del módulo [MÓDULOS] en el directorio del FILESYSTEM en las máquinas zzvx1029/zzvx1030 
 
 Se ha dejado el fichero en la ruta: 
-\\\\repositorio.nav.es\\Fuentes_de_aplicaciones\\ETNAJ\\PREPRODUCCION\\FILESYSTEM\\[MÓDULO]
+\\\\repositorio.nav.es\\Fuentes_de_aplicaciones\\NAS_ETNAJ\\PREPRODUCCION\\FILESYSTEM\\[MÓDULO]
 
 Eliminar la cache y reiniciar los WL 
 

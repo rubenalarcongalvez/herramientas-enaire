@@ -33,7 +33,11 @@
     <header class="flex gap-2 w-full bg-blue-600 text-white p-2 justify-between">
       <section class="flex gap-2 items-center">
         <img (click)="visibleSidebar = true" src="enaire.png" alt="Icono enaire" width="25" class="rounded cursor-pointer" pTooltip="Historial de Sprints">
-        <span class="cursor-pointer hover:text-cyan-400" [routerLink]="['/sprint/', sprintSeleccionado()]" routerLinkActive="ruta-activa">SP{{sprintSeleccionado()}}</span>
+        @if (haySprintsCreados()) {
+          <span class="cursor-pointer hover:text-cyan-400" [routerLink]="['/sprint/', sprintSeleccionado()]" routerLinkActive="ruta-activa">SP{{sprintSeleccionado()}}</span>
+        } @else {
+          <span class="cursor-pointer hover:text-cyan-400" (click)="abrirAnadirNuevoSprint()">CREAR</span>
+        }
         <i class="pi pi-plus cursor-pointer" style="font-size: 15px;" pTooltip="Añadir Sprint" (click)="abrirAnadirNuevoSprint()"></i>
       </section>
       <section class="flex items-center justify-center gap-2">

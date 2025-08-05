@@ -108,7 +108,7 @@
                                 <i *ngIf="elemento?.alias" class="pi pi-info-circle" [pTooltip]="elemento.nombre"></i>
                             </div>
                             <div class="flex gap-2 items-center">
-                                <span tooltipPosition="left" [pTooltip]="'Veces responsable en los últimos ' + limiteSprintsVecesMGL + ' sprints'" class="text-white p-1 bg-purple-500 rounded">{{ elemento?.vecesMGLUltimosSprints || 0 }}</span>
+                                <span tooltipPosition="left" [pTooltip]="'Veces responsable en los últimos ' + limiteTramosContadosMGL + ' tramos'" class="text-white p-1 bg-purple-500 rounded">{{ elemento?.vecesMGLUltimosSprints || 0 }}</span>
                             </div>
                         </div>
                     </ng-template>

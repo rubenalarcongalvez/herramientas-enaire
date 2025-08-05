@@ -122,9 +122,13 @@
         </div>
       }
     </section>
-} @else {
+} @else if (haySprintsCreados()) {
     <div class="flex justify-center">
         <p-progressSpinner mode="indeterminate" styleClass="mt-4"/>
+    </div>
+} @else {
+    <div class="flex justify-center">
+        <h3>No hay sprints creados</h3>
     </div>
 }
 

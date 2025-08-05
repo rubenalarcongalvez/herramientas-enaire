@@ -11,6 +11,7 @@ const USER_KEY = 'auth-user';
   providedIn: 'root',
 })
 export class StorageService {
+  haySprintsCreados = signal<boolean>(true);
   numerosSprints = signal<number[]>([]);
   sprintSeleccionado = signal<number | null>(null);
   usuarios = signal<Usuario[]>([]);
@@ -18,9 +19,9 @@ export class StorageService {
   usuariosNoExentos = computed(() => this.usuarios().filter(usu => !usu?.exentoSubidas));
   modulos = signal<Modulo[]>([]);
   tramosMGL = signal<TramoMGL[]>([]);
-  limiteSprintsContarSubidas: number = 3;
-  limiteSprintsVecesResponsable: number = 5;
-  limiteSprintsVecesMGL: number = 4;
+  limiteSprintsContarSubidas: number = 5;
+  limiteSprintsVecesResponsable: number = 7;
+  limiteTramosContadosMGL: number = 20;
 
   constructor(private firestore: Firestore) {}
 

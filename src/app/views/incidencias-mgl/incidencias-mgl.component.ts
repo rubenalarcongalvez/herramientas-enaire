@@ -32,7 +32,7 @@ export class IncidenciasMglComponent {
   tramosMGL = inject(StorageService).tramosMGL;
   usuarios = inject(StorageService).usuariosNoExentos;
   listaFiltradaUsuariosEncargados: Usuario[] = [];
-  limiteSprintsVecesMGL = inject(StorageService).limiteSprintsVecesMGL;
+  limiteTramosContadosMGL = inject(StorageService).limiteTramosContadosMGL;
   fb = inject(FormBuilder);
   messageService = inject(MessageService);
   confirmationService = inject(ConfirmationService);
