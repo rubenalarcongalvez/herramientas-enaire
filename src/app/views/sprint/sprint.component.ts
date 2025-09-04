@@ -96,6 +96,7 @@ export class SprintComponent {
   listaFiltradaModulos: Modulo[] = [];
 
   haySprintsCreados = inject(StorageService).haySprintsCreados;
+  copiarMensajePortapapeles: boolean = true;
 
   constructor(private activatedRoute: ActivatedRoute, private storageService: StorageService, private messageService: MessageService) {
     this.activatedRoute.params.subscribe((params) => this.sprintSeleccionado.set(params['id'] || this.sprintSeleccionado()));
@@ -548,29 +549,48 @@ export class SprintComponent {
       this.listaFiltradaTiposElementos = this.listaTiposElementos.filter(tipoElemento => !query || normalizarCadena(tipoElemento)?.includes(normalizarCadena(query)));
   }
 
-  toPedirSubida() {
-    const mensajeTIPO: string = `Buenas tardes, 
+  toPedirSubida(subida: Subida) {
+    let entorno = 'PREPRODUCCION';
+    if (subida.entorno === EntornoEnum.PRO) {
+      entorno = 'PRODUCCION';
+    }
 
-Se solicita una subida para [FECHA] para realizar unas pruebas pendientes en dicho entorno. 
+    const listaModulos: string [] = subida?.elementosSubida?.filter(ele => ele.tipo === TipoElementoEnum.dist).map(ele => ele.moduloSubido) || [];
+    const war: boolean = !!subida?.elementosSubida?.find(ele => ele.tipo === TipoElementoEnum.war);
+    const ear: boolean = !!subida?.elementosSubida?.find(ele => ele.tipo === TipoElementoEnum.ear);
 
-En las máquinas de ETNAJ zzvx0708/zzvx0709 desplegar el EAR (ETNAJ_EAR-2.39.ear) 
+    // let mensajeTIPO: string = 
 
+    let mensajeTIPO: string = `Buenas tardes, 
+Se solicita una subida para el ${this.obtenerFechaString(subida.fechaSubida!)}` 
+
+    if (subida?.horaSubida) {
+      mensajeTIPO += ` a las ${this.obtenerHoraSubida(subida?.horaSubida)}`;
+    }
+
+    mensajeTIPO += ` para realizar unas pruebas pendientes en el entorno de ${entorno}. `;
+
+    if (ear) {
+      mensajeTIPO += `\n\nEn las máquinas de ETNAJ zzvx0708/zzvx0709 desplegar el EAR (ETNAJ_EAR-2.39.ear) 
 Se ha dejado el EAR de pruebas en la ruta: 
+\\\\repositorio.nav.es\\Fuentes_de_aplicaciones\\NAS_ETNAJ\\${entorno}\\SERVIDOR_ETNA `;
+    }
 
-\\\\repositorio.nav.es\\Fuentes_de_aplicaciones\\NAS_ETNAJ\\[ENTORNO]\\SERVIDOR_ETNA 
-
-Necesitamos también que se despliegue el WAR (etnaApp.war) que corresponde a los servicios web en las máquinas zzvx1031/zzvx1032 
-
+    if (war) {
+      mensajeTIPO += `\n\nNecesitamos que se despliegue el WAR (etnaApp.war) que corresponde a los servicios web en las máquinas zzvx1031/zzvx1032 
 Se ha dejado el WAR de pruebas en la ruta: 
+\\\\repositorio.nav.es\\Fuentes_de_aplicaciones\\NAS_ETNAJ\\${entorno}\\ETNAJ_WSREST`;
+    }
 
-\\\\repositorio.nav.es\\Fuentes_de_aplicaciones\\NAS_ETNAJ\\[ENTORNO]\\ETNAJ_WSREST 
+    if (listaModulos?.length) {
+      mensajeTIPO += `\n\nNecesitamos que se copien los ficheros de los módulos ${listaModulos.join(', ')} en el directorio del FILESYSTEM en las máquinas zzvx1029/zzvx1030 
+Se han dejado los ficheros en las rutas:`;
+      listaModulos.forEach(modulo => {
+        mensajeTIPO += `\n\\\\repositorio.nav.es\\Fuentes_de_aplicaciones\\NAS_ETNAJ\\${entorno}\\FILESYSTEM\\${modulo.toUpperCase()}`;
+      });
+    }
 
-Adicionalmente a ello necesitamos que se copien los ficheros del módulo [MÓDULOS] en el directorio del FILESYSTEM en las máquinas zzvx1029/zzvx1030 
-
-Se ha dejado el fichero en la ruta: 
-\\\\repositorio.nav.es\\Fuentes_de_aplicaciones\\NAS_ETNAJ\\PREPRODUCCION\\FILESYSTEM\\[MÓDULO]
-
-Eliminar la cache y reiniciar los WL 
+    mensajeTIPO += `\n\nEliminar la cache y reiniciar los WL 
 
 Muchas gracias de antemano por vuestra colaboración. 
 
@@ -578,19 +598,27 @@ Un saludo`;
 
     // Copiamos al portapapeles el mensaje TIPO para pedir la subida
     this.confirmationService.confirm({
-        header: '¿Desea copiar el mensaje de ejemplo a su portapapeles? (sustituya lo que hay entre corchetes [CONTENIDO])',
+        header: `Despliegue a ${subida.entorno.toUpperCase()}`,
         message: mensajeTIPO,
         rejectButtonStyleClass: '!bg-white !border-none !text-black !p-button-sm hover:!bg-gray-100',
         acceptButtonStyleClass: '!bg-blue-500 !border-none !p-button-sm hover:!bg-blue-400',
         rejectLabel: 'Cancelar',
         acceptLabel: 'Pedir subida',
         accept: () => {
-          window.open('https://helpo.enaire.es');
+          if (this.copiarMensajePortapapeles) {
+            this.copiarPortapapeles(mensajeTIPO);
+            setTimeout(() => {
+              window.open('https://helpo.enaire.es');
+            }, 1000);
+          } else {
+            this.copiarMensajePortapapeles = true;
+            window.open('https://helpo.enaire.es');
+          }
         },
     });
   }
 
-  copiarMensajePortapapeles(mensaje: string) {
+  copiarPortapapeles(mensaje: string) {
     navigator.clipboard.writeText(mensaje);
     this.messageService.add({ severity: 'info', summary: 'Mensaje copiado', life: 3000 });
   }
