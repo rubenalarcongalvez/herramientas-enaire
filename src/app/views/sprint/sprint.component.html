@@ -260,7 +260,7 @@
     (onHide)="formElemento.reset()"
 >
     <ng-template pTemplate="header">
-        <h2>{{ formElemento.get('tipoAnterior')?.value && formElemento.get('moduloSubidoAnterior')?.value ? 'Editar' : 'Añadir' }} elemento</h2>
+        <h2>{{ formElemento.get('tipoAnterior')?.value ? 'Editar' : 'Añadir' }} elemento</h2>
     </ng-template>
     
     <form [formGroup]="formElemento" (ngSubmit)="aplicarElementoSubida()" (keydown.enter)="aplicarElementoSubida()" class="flex flex-col items-center gap-4 w-full pt-2">
@@ -363,7 +363,7 @@
                 (onClick)="elementoDialog = false" 
             />
             <p-button 
-                [label]="formElemento.get('tipoAnterior')?.value && formElemento.get('moduloSubidoAnterior')?.value ? 'Editar' : 'Añadir'" 
+                [label]="formElemento.get('tipoAnterior')?.value ? 'Editar' : 'Añadir'" 
                 (onClick)="aplicarElementoSubida()" 
             />
         </div>

@@ -263,17 +263,14 @@ export class SprintComponent {
       this.formElemento.get('usuariosSubida')?.setValue(elemento?.usuariosSubida);
 
       this.formElemento.get('tipoAnterior')?.setValue(elemento?.tipo);
-      this.formElemento.get('moduloSubidoAnterior')?.setValue(elemento?.tipo);
+      this.formElemento.get('moduloSubidoAnterior')?.setValue(elemento?.moduloSubido);
     }
 
     this.elementoDialog = true;
   }
 
   aplicarElementoSubida() {
-    // Primero, obtenemos la subida correspondiente
-    let subidaEnlazada = computed<Subida>(() => this.subidasSprint().find(subida => subida?.fechaSubida == this.formElemento.get('fechaSubida')?.value)!);
-
-    // Comprobamos que no se pongan datos erroneos
+    // Comprobamos que no se pongan datos erroneos ya que un war o ear no puede ser de distintos modulos
     if (this.formElemento?.valid && this.formElemento.get('tipo')?.value != TipoElementoEnum.dist) {
       this.formElemento.get('moduloSubido')?.setValue('');
     }
@@ -282,10 +279,7 @@ export class SprintComponent {
       this.formElemento.markAllAsTouched();
       this.formElemento.get('moduloSubido')?.markAsDirty();
       /* No puede coincidir con otro elemento existente a no ser que estemos editando */
-    } else if (this.formElemento?.get('tipoAnterior')?.value && (subidaEnlazada().elementosSubida?.filter(ele => !((ele.tipo == this.formElemento?.get('tipoAnterior')?.value) &&       (ele?.tipo == this.formElemento?.get('moduloSubidoAnterior')?.value))).some(ele => (normalizarCadena(ele.tipo || '') == normalizarCadena(this.formElemento?.get('tipo')?.value || '')) && (normalizarCadena(ele.moduloSubido || '') == normalizarCadena(this.formElemento?.get('moduloSubido')?.value || ''))))
-        ||
-      (!this.formElemento?.get('tipoAnterior')?.value && subidaEnlazada().elementosSubida?.some(ele => (normalizarCadena(ele.tipo || '') == normalizarCadena(this.formElemento?.get('tipo')?.value || '')) && (normalizarCadena(ele.moduloSubido || '') == normalizarCadena(this.formElemento?.get('moduloSubido')?.value || ''))))
-    ) {
+    } else if (this.esElementoDuplicado()) {
       this.messageService.add({ severity: 'error', summary: 'Atención', detail: 'Ya hay un elemento asignado con este tipo y modulo', life: 3000 });
     } else {
       // Hacemos los cambios
@@ -299,7 +293,7 @@ export class SprintComponent {
         /* Si estamos editando o si estamos anadiendo */
         if (this.formElemento.get('tipoAnterior')?.value) {
           const elementoExistente = subidaExistente?.elementosSubida?.find(elemento =>
-            (elemento.tipo == this.formElemento.get('tipoAnterior')?.value) && (elemento.tipo == this.formElemento.get('moduloSubidoAnterior')?.value)
+            (elemento.tipo == this.formElemento.get('tipoAnterior')?.value) && (elemento.moduloSubido == this.formElemento.get('moduloSubidoAnterior')?.value)
           );
 
           if (elementoExistente) {
@@ -348,6 +342,32 @@ export class SprintComponent {
         this.messageService.add({ severity: 'error', summary: 'Hubo un error inesperado', detail: 'Vuelva a intentarlo más tarde', life: 3000 });
       });
     }
+  }
+
+  private esElementoDuplicado(): boolean {
+    // Primero, obtenemos la subida correspondiente
+    let subidaEnlazada = computed<Subida>(() => this.subidasSprint().find(subida => subida?.fechaSubida == this.formElemento.get('fechaSubida')?.value)!);
+    const tipoActual = normalizarCadena(this.formElemento.get('tipo')?.value || '');
+    const moduloActual = normalizarCadena(this.formElemento.get('moduloSubido')?.value || '');
+  
+    if (!subidaEnlazada()) return false;
+  
+    return subidaEnlazada().elementosSubida?.some(ele => {
+      const mismoTipo = normalizarCadena(ele.tipo || '') === tipoActual;
+      const mismoModulo = normalizarCadena(ele.moduloSubido || '') === moduloActual;
+  
+      // Si estamos editando, ignorar el elemento original
+      if (this.formElemento.get('tipoAnterior')?.value) {
+        const tipoAnterior = normalizarCadena(this.formElemento.get('tipoAnterior')?.value);
+        const moduloAnterior = normalizarCadena(this.formElemento.get('moduloSubidoAnterior')?.value);
+  
+        const esElementoAnterior = normalizarCadena(ele.tipo || '') === tipoAnterior &&
+                                    normalizarCadena(ele.moduloSubido || '') === moduloAnterior;
+        if (esElementoAnterior) return false;
+      }
+  
+      return mismoTipo && mismoModulo;
+    }) ?? false;
   }
 
   eliminarElementoSubida(fechaSubida: Date, elemento: ElementoSubida) {
