@@ -3,11 +3,15 @@ import { FullCalendarModule } from '@fullcalendar/angular';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { StorageService } from '../../shared/services/storage.service';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { adaptarFechaACalendario, pasarDateStrAFormatoEspanol } from '../../shared/util/util';
+import { adaptarFechaACalendario, normalizarCadena, pasarDateStrAFormatoEspanol } from '../../shared/util/util';
 import { CalendarOptions } from '@fullcalendar/core';
 import interactionPlugin, { DateClickArg } from '@fullcalendar/interaction';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { AutoCompleteCompleteEvent, AutoCompleteModule } from 'primeng/autocomplete';
+import { FormsModule } from '@angular/forms';
+import { Usuario } from '../../shared/interfaces/usuario';
 
 interface EventoCalendario {
   title: string;
@@ -25,7 +29,7 @@ enum coloresEnum {
 @Component({
   selector: 'app-dias-libres',
   standalone: true,
-  imports: [FullCalendarModule, ProgressSpinnerModule, DialogModule, CommonModule],
+  imports: [FullCalendarModule, ProgressSpinnerModule, DialogModule, CommonModule, FloatLabelModule, AutoCompleteModule, FormsModule],
   templateUrl: './dias-libres.component.html',
   styleUrl: './dias-libres.component.css'
 })
@@ -33,7 +37,9 @@ export class DiasLibresComponent {
   coloresEnum = coloresEnum;
 
   private storage = inject(StorageService);
-  usuarios  = this.storage.usuarios;
+  usuarios = this.storage.usuarios;
+  usuariosCalendario = signal([]);
+  listaFiltradaUsuarios: Usuario[] = [];
   infoDialog: boolean = false;
   diaSeleccionado = signal<string>('');
   diaSeleccionadoSpa = computed<string>(() => pasarDateStrAFormatoEspanol(this.diaSeleccionado()));
@@ -47,7 +53,7 @@ export class DiasLibresComponent {
 
   /* Eventos derivados en tiempo real de usuarios() */
   eventosCalendario = computed<EventoCalendario[]>(() =>
-    this.usuarios().flatMap(usu => {
+    (this.usuariosCalendario()?.length ? this.usuariosCalendario() : this.usuarios()).flatMap(usu => {
       const nombre = usu?.alias || usu?.nombre;
       const push  = (arr: Date[], color: string) =>
         arr.map(d => ({
@@ -77,4 +83,10 @@ export class DiasLibresComponent {
       this.infoDialog = true;
     }
   }));
+
+  filterUsuarios(event: AutoCompleteCompleteEvent) {
+    let query = event.query;
+
+    this.listaFiltradaUsuarios = this.usuarios().filter(usuario => !query || normalizarCadena(usuario.alias)?.includes(normalizarCadena(query)) || normalizarCadena(usuario.nombre)?.includes(normalizarCadena(query)));
+  }
 }

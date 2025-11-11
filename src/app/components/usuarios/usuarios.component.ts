@@ -36,13 +36,21 @@ export class UsuariosComponent {
   limiteVecesResponsable = inject(StorageService).limiteSprintsVecesResponsable;
   limiteTramosContadosMGL = inject(StorageService).limiteTramosContadosMGL;
   usuarios = inject(StorageService).usuarios;
-  usuariosTabla = computed(() => this.usuarios().map(u => ({
-    ...u, // Para mantener una copia superficial
-    cumpleanosStr:
-      typeof u.cumpleanos === 'string'
-        ? u.cumpleanos
-        : obtenerFechaCumpleString(u.cumpleanos as any)
-  })));
+  usuariosTabla = computed(() => this.usuarios().map(u => {
+    const cumpleanosSinAnio: Date = u?.cumpleanos;
+    if (cumpleanosSinAnio) {
+      cumpleanosSinAnio.setFullYear(2025); // No nos interesa el anio
+    }
+    /* Devolvemos los datos formateados */
+    return {
+      ...u, // Para mantener una copia superficial
+      cumpleanosSinAnio,
+      cumpleanosStr:
+        typeof u.cumpleanos === 'string'
+          ? u.cumpleanos
+          : obtenerFechaCumpleString(u.cumpleanos as any)
+    }
+  }));
   isSorted: boolean = true;
 
   fb = inject(FormBuilder); // Inyectamos el form builder
@@ -115,7 +123,7 @@ export class UsuariosComponent {
       });
     }
   }
-  
+
   eliminarUsuario(usuario: Usuario) {
     this.confirmationService.confirm({
         header: 'Atención',

@@ -125,16 +125,20 @@ export class IncidenciasMglComponent {
 
   fechaActualEntreTramo(tramo: TramoMGL): boolean {
     const [inicio, fin] = tramo.tramo;
-  
+
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
-  
+
     const inicioNormal = new Date(inicio);
     inicioNormal.setHours(0, 0, 0, 0);
-  
+
     const finNormal = new Date(fin);
     finNormal.setHours(0, 0, 0, 0);
-  
+
     return inicioNormal <= hoy && hoy <= finNormal;
+  }
+
+  navegarSharepointIncidencias() {
+    window.open('https://enaire.sharepoint.com/sites/PCET/Equipo%20ETNA%20New/Forms/AllItems.aspx?id=%2Fsites%2FPCET%2FEquipo%20ETNA%20New%2F01%2E%2DETNA%2F04%2E%2DGesti%C3%B3n%20de%20Incidencias%2FIncidencias&viewid=0af0a074%2D3842%2D4116%2D9f28%2Da3f51676adbb', '_blank');
   }
 }

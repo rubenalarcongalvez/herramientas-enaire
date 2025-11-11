@@ -55,7 +55,7 @@ export class SprintComponent {
   subidaDialog: boolean = false;
   elementoDialog: boolean = false;
   numeroSprintDialog: boolean = false;
-  
+
   /* Util */
   entornos = EntornoEnum;
   tiposElementos = TipoElementoEnum;
@@ -119,16 +119,16 @@ export class SprintComponent {
             sprint?.subidas?.sort((a, b) => {
               const d1 = a.fechaSubida as Date | undefined;
               const d2 = b.fechaSubida as Date | undefined;
-  
+
               /* Comprobamos que los que no tengan fecha vayan primero */
               if (!d1 && !d2) return 0;
               if (!d1) return -1;
               if (!d2) return 1;
-            
+
               // Si ambos tienen fecha van por orden cronológico descendente
               return d2.getTime() - d1.getTime();
             });
-            /* Si solo estamos modificando el sprint actual, hacemos esto */      
+            /* Si solo estamos modificando el sprint actual, hacemos esto */
             this.sprint.set(sprint);
           } else {
             this.storageService.obtenerNumerosSprints(sessionStorage?.getItem('contrasenaAcceso')!).subscribe({
@@ -145,7 +145,7 @@ export class SprintComponent {
               }, error: (err) => {
                 console.error(err);
                 this.messageService.add({ severity: 'error', summary: 'No se pudo obtener la información', detail: 'Vuelva a iniciar sesión', life: 3000 });
-                sessionStorage.removeItem('contrasenaAcceso');    
+                sessionStorage.removeItem('contrasenaAcceso');
               }
             });
           }
@@ -189,7 +189,7 @@ export class SprintComponent {
         const subidaExistente = nuevasSubidas.find(subida =>
           subida.fechaSubida == this.formSubida.get('fechaSubidaAnterior')?.value
         );
-        
+
         if (subidaExistente) {
           subidaExistente.entorno = this.formSubida.get('entorno')?.value;
           subidaExistente.fechaSubida = this.formSubida.get('fechaSubida')?.value;
@@ -254,7 +254,7 @@ export class SprintComponent {
         },
     });
   }
-  
+
   abrirAnadirEditarElementoSubida(fechaSubida: Date, elemento?: ElementoSubida) {
     this.formElemento.get('fechaSubida')?.setValue(fechaSubida);
     if (elemento) {
@@ -289,7 +289,7 @@ export class SprintComponent {
       const subidaExistente = nuevasSubidas.find(subida =>
         subida.fechaSubida == this.formElemento.get('fechaSubida')?.value
       );
-      
+
       if (subidaExistente) {
         /* Si estamos editando o si estamos anadiendo */
         if (this.formElemento.get('tipoAnterior')?.value) {
@@ -350,23 +350,23 @@ export class SprintComponent {
     let subidaEnlazada = computed<Subida>(() => this.subidasSprint().find(subida => subida?.fechaSubida == this.formElemento.get('fechaSubida')?.value)!);
     const tipoActual = normalizarCadena(this.formElemento.get('tipo')?.value || '');
     const moduloActual = normalizarCadena(this.formElemento.get('moduloSubido')?.value || '');
-  
+
     if (!subidaEnlazada()) return false;
-  
+
     return subidaEnlazada().elementosSubida?.some(ele => {
       const mismoTipo = normalizarCadena(ele.tipo || '') === tipoActual;
       const mismoModulo = normalizarCadena(ele.moduloSubido || '') === moduloActual;
-  
+
       // Si estamos editando, ignorar el elemento original
       if (this.formElemento.get('tipoAnterior')?.value) {
         const tipoAnterior = normalizarCadena(this.formElemento.get('tipoAnterior')?.value);
         const moduloAnterior = normalizarCadena(this.formElemento.get('moduloSubidoAnterior')?.value);
-  
+
         const esElementoAnterior = normalizarCadena(ele.tipo || '') === tipoAnterior &&
                                     normalizarCadena(ele.moduloSubido || '') === moduloAnterior;
         if (esElementoAnterior) return false;
       }
-  
+
       return mismoTipo && mismoModulo;
     }) ?? false;
   }
@@ -384,7 +384,7 @@ export class SprintComponent {
             if (subida.fechaSubida !== fechaSubida) {
               return subida
             }; // No toca
-          
+
             return {
               ...subida,
               elementosSubida: subida.elementosSubida?.filter(ele =>
@@ -392,7 +392,7 @@ export class SprintComponent {
               )
             };
           }); // Se elimina el elemento
-        
+
           this.sprint.set({
             ...this.sprint(),
             subidas: subidasActualizadas
@@ -512,7 +512,7 @@ export class SprintComponent {
             coinciden.sort((u1, u2) => (u1?.distsUltimosSprints || 0) - (u2?.distsUltimosSprints || 0));
             const noCoinciden = filtered.filter(usuario => !usuario?.modulosLider?.some(m => m?.nombre == this.formElemento.get('moduloSubido')?.value) && !usuario?.modulosDesarrollador?.some(m => m?.nombre == this.formElemento.get('moduloSubido')?.value));
             noCoinciden.sort((u1, u2) => (u1?.distsUltimosSprints || 0) - (u2?.distsUltimosSprints || 0));
-  
+
             filtered = [...coinciden, ...noCoinciden]; // Ponemos la lista ya ordenada y con los usuarios del modulo seleccionado primero
           } else {
             filtered.sort((u1, u2) => (u1?.distsUltimosSprints || 0) - (u2?.distsUltimosSprints || 0));
@@ -528,9 +528,9 @@ export class SprintComponent {
           break;
         }
         default: {
-          filtered.sort((u1, u2) => 
+          filtered.sort((u1, u2) =>
             ((u1?.distsUltimosSprints || 0) + (u1?.warsUltimosSprints || 0) +(u1?.earsUltimosSprints || 0))
-            - 
+            -
             ((u2?.distsUltimosSprints || 0) + (u2?.warsUltimosSprints || 0) +(u2?.earsUltimosSprints || 0))
           );
         }
@@ -559,10 +559,10 @@ export class SprintComponent {
     const war: boolean = !!subida?.elementosSubida?.find(ele => ele.tipo === TipoElementoEnum.war);
     const ear: boolean = !!subida?.elementosSubida?.find(ele => ele.tipo === TipoElementoEnum.ear);
 
-    // let mensajeTIPO: string = 
+    // let mensajeTIPO: string =
 
-    let mensajeTIPO: string = `Buenas tardes, 
-Se solicita una subida para el ${this.obtenerFechaString(subida.fechaSubida!)}` 
+    let mensajeTIPO: string = `Buenas tardes,
+Se solicita una subida para el ${this.obtenerFechaString(subida.fechaSubida!)}`
 
     if (subida?.horaSubida) {
       mensajeTIPO += ` a las ${this.obtenerHoraSubida(subida?.horaSubida)}`;
@@ -571,28 +571,28 @@ Se solicita una subida para el ${this.obtenerFechaString(subida.fechaSubida!)}`
     mensajeTIPO += ` para realizar unas pruebas pendientes en el entorno de ${entorno}. `;
 
     if (ear) {
-      mensajeTIPO += `\n\nEn las máquinas de ETNAJ zzvx0708/zzvx0709 desplegar el EAR (ETNAJ_EAR-2.39.ear) 
-Se ha dejado el EAR de pruebas en la ruta: 
+      mensajeTIPO += `\n\nEn las máquinas de ETNAJ zzvx0708/zzvx0709 desplegar el EAR (ETNAJ_EAR-2.39.ear)
+Se ha dejado el EAR de pruebas en la ruta:
 \\\\repositorio.nav.es\\Fuentes_de_aplicaciones\\NAS_ETNAJ\\${entorno}\\SERVIDOR_ETNA `;
     }
 
     if (war) {
-      mensajeTIPO += `\n\nNecesitamos que se despliegue el WAR (etnaApp.war) que corresponde a los servicios web en las máquinas zzvx1031/zzvx1032 
-Se ha dejado el WAR de pruebas en la ruta: 
+      mensajeTIPO += `\n\nNecesitamos que se despliegue el WAR (etnaApp.war) que corresponde a los servicios web en las máquinas zzvx1031/zzvx1032
+Se ha dejado el WAR de pruebas en la ruta:
 \\\\repositorio.nav.es\\Fuentes_de_aplicaciones\\NAS_ETNAJ\\${entorno}\\ETNAJ_WSREST`;
     }
 
     if (listaModulos?.length) {
-      mensajeTIPO += `\n\nNecesitamos que se copien los ficheros de los módulos ${listaModulos.join(', ')} en el directorio del FILESYSTEM en las máquinas zzvx1029/zzvx1030 
+      mensajeTIPO += `\n\nNecesitamos que se copien los ficheros de los módulos ${listaModulos.join(', ')} en el directorio del FILESYSTEM en las máquinas ${entorno == 'PREPRODUCCION' ? 'zzvx2012/zzvx2013' : 'zzvx1029/zzvx1030'}
 Se han dejado los ficheros en las rutas:`;
       listaModulos.forEach(modulo => {
         mensajeTIPO += `\n\\\\repositorio.nav.es\\Fuentes_de_aplicaciones\\NAS_ETNAJ\\${entorno}\\FILESYSTEM\\${modulo.toUpperCase()}`;
       });
     }
 
-    mensajeTIPO += `\n\nEliminar la cache y reiniciar los WL 
+    mensajeTIPO += `\n\nEliminar la cache y reiniciar los WL
 
-Muchas gracias de antemano por vuestra colaboración. 
+Muchas gracias de antemano por vuestra colaboración.
 
 Un saludo`;
 
@@ -635,7 +635,7 @@ Un saludo`;
     if (hora) {
       const horas = String(hora.getHours()).padStart(2, '0');
       const minutos = String(hora.getMinutes()).padStart(2, '0');
-      
+
       return `${horas}:${minutos}`;
     } else {
       return '';

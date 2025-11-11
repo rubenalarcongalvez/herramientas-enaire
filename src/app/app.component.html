@@ -16,10 +16,10 @@
     @for (numeroSprint of numerosSprints(); track numeroSprint) {
       <div class="flex gap-2 items-center">
         <h4 class="grow" (click)="redirigir('/sprint/' + numeroSprint)" [ngClass]="{'ruta-activa2': numeroSprint == sprintSeleccionado()}">SP{{ numeroSprint }}</h4>
-        <p-button 
+        <p-button
             icon="pi pi-trash text-red-500"
             severity="secondary"
-            (onClick)="confirmarEliminarSprint(numeroSprint)" 
+            (onClick)="confirmarEliminarSprint(numeroSprint)"
             pTooltip="Eliminar Sprint"
             tooltipPosition="left"
         />
@@ -30,7 +30,7 @@
 
 <div class="flex flex-col min-h-[100vh] justify-center flex-wrap" [ngClass]="{'fondo-login': !cargado() || !contrasenaAcceso}">
   @if (cargado() && contrasenaAcceso) {
-    <header class="flex gap-2 w-full bg-blue-600 text-white p-2 justify-between">
+    <header class="flex gap-2 w-full bg-blue-600 text-white p-2 justify-between flex-wrap">
       <section class="flex gap-2 items-center">
         <img (click)="visibleSidebar = true" src="enaire.png" alt="Icono enaire" width="25" class="rounded cursor-pointer" pTooltip="Historial de Sprints">
         @if (haySprintsCreados()) {
@@ -39,6 +39,7 @@
           <span class="cursor-pointer hover:text-cyan-400" (click)="abrirAnadirNuevoSprint()">CREAR</span>
         }
         <i class="pi pi-plus cursor-pointer" style="font-size: 15px;" pTooltip="Añadir Sprint" (click)="abrirAnadirNuevoSprint()"></i>
+        <i class="pi pi-cloud cursor-pointer hover:text-cyan-400" style="font-size: 15px;" pTooltip="Sharepoint" (click)="navegarSharepoint()"></i>
       </section>
       <section class="flex items-center justify-center gap-2">
         <article class="cursor-pointer gap-2 items-baseline hover:text-cyan-400 flex" routerLink="/estadisticas" routerLinkActive="ruta-activa">
@@ -99,9 +100,9 @@
 
 <!-- Dialogs -->
 <!-- Editar numero de sprint -->
-<p-dialog 
-    [(visible)]="nuevoSprintDialog" 
-    [modal]="true" 
+<p-dialog
+    [(visible)]="nuevoSprintDialog"
+    [modal]="true"
     [dismissableMask]="false"
     draggable="false"
     maximizable
@@ -111,7 +112,7 @@
     <ng-template pTemplate="header">
         <h2>Añadir Sprint</h2>
     </ng-template>
-    
+
     <form [formGroup]="formNuevoSprint" (ngSubmit)="aplicarAnadirNuevoSprint()" (keydown.enter)="aplicarAnadirNuevoSprint()" class="flex flex-col items-center gap-4 w-full pt-2">
         <p-inputnumber formControlName="numeroSprint" [showButtons]="true" buttonLayout="vertical" spinnerMode="vertical" inputId="vertical" [inputStyle]="{ width: '3rem' }">      </p-inputnumber>
         @if (formNuevoSprint.get('numeroSprint')?.touched && formNuevoSprint.get('numeroSprint')?.invalid) {
@@ -121,15 +122,15 @@
 
     <ng-template pTemplate="footer">
         <div class="flex justify-end gap-2 p-2">
-            <p-button 
-                label="Cancelar" 
-                [text]="true" 
+            <p-button
+                label="Cancelar"
+                [text]="true"
                 styleClass="cancel"
-                (onClick)="nuevoSprintDialog = false" 
+                (onClick)="nuevoSprintDialog = false"
             />
-            <p-button 
-                label="Añadir" 
-                (onClick)="aplicarAnadirNuevoSprint()" 
+            <p-button
+                label="Añadir"
+                (onClick)="aplicarAnadirNuevoSprint()"
             />
         </div>
     </ng-template>

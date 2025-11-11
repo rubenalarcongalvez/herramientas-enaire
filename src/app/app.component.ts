@@ -51,7 +51,7 @@ export class AppComponent {
   limiteSprintsContarSubidas: number = inject(StorageService).limiteSprintsContarSubidas;
   limiteSprintsVecesResponsable: number = inject(StorageService).limiteSprintsVecesResponsable;
   limiteTramosContadosMGL: number = inject(StorageService).limiteTramosContadosMGL;
-  limiteMayor = computed(() => 
+  limiteMayor = computed(() =>
     Math.max(this.limiteSprintsContarSubidas, this.limiteSprintsVecesResponsable)
   );
 
@@ -100,7 +100,7 @@ export class AppComponent {
         this.cargado.set(true);
       }
     });
-    
+
     /* Obtenemos los usuarios tambien */
     this.cargarDatosTiempoReal();
   }
@@ -111,7 +111,7 @@ export class AppComponent {
 
   private cargarDatosTiempoReal(): void {
     const contrasena = sessionStorage.getItem('contrasenaAcceso')!;
-  
+
     combineLatest([
       this.storageService.getCollectionByAddress<Usuario>(`${contrasena}/usuarios`),
       this.storageService.getCollectionByAddress<Sprint>(`${contrasena}/sprints`),
@@ -122,16 +122,16 @@ export class AppComponent {
         const ultimosSprints = sprints
           .sort((a, b) => Number(b.id) - Number(a.id))
           .slice(0, this.limiteMayor());
-  
+
         const usuariosCompletos = usuarios.map(usuario => {
           let dist = 0, war = 0, ear = 0, vecesResponsable = 0, vecesEncargadoMGL = 0;
-  
+
           ultimosSprints.forEach((sprint, indice) => {
             sprint.subidas?.forEach(subida => {
               if ((indice < this.limiteSprintsVecesResponsable) && subida?.responsable?.id === usuario?.id) {
                 vecesResponsable++;
               }
-  
+
               subida?.elementosSubida?.forEach(elemento => {
                 if ((indice < this.limiteSprintsContarSubidas) && elemento?.usuariosSubida?.some(u => u?.id === usuario.id) && elemento?.completado) {
                   if (elemento.tipo === 'dist') ++dist;
@@ -146,10 +146,10 @@ export class AppComponent {
           tramosMGL.sort((t2, t1) => {
             const val1 = t1.tramo?.[0];
             const val2 = t2.tramo?.[0];
-          
+
             if (val1 > val2) return 1;
             if (val1 < val2) return -1;
-          
+
             return 0;
           });
 
@@ -159,14 +159,14 @@ export class AppComponent {
 
             return modulo;
           }));
-          
+
           tramosMGL.forEach((tramo, indice) => {
             tramo.fechaInicioDate = tramo?.tramo[0];
             if ((indice < this.limiteTramosContadosMGL) && tramo?.usuariosEncargados?.some(usu => usu?.id === usuario.id)) {
               ++vecesEncargadoMGL;
             }
           });
-  
+
           return {
             ...usuario,
             distsUltimosSprints: dist,
@@ -178,7 +178,7 @@ export class AppComponent {
             modulosDesarrollador: this.modulos().filter(m => m?.desarrolladores?.some(d => d?.id === usuario.id))
           };
         });
-  
+
         this.usuarios.set(usuariosCompletos);
       },
       error: (err) => {
@@ -257,5 +257,9 @@ export class AppComponent {
   cerrarSesion() {
     sessionStorage.removeItem('contrasenaAcceso');
     localStorage.removeItem('contrasenaAcceso');
+  }
+
+  navegarSharepoint() {
+    window.open('https://enaire.sharepoint.com/sites/PCET/Equipo%20ETNA%20New/Forms/AllItems.aspx?viewid=0af0a074%2D3842%2D4116%2D9f28%2Da3f51676adbb', '_blank');
   }
 }
