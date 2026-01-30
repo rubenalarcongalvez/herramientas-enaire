@@ -19,8 +19,8 @@ export class StorageService {
   usuariosNoExentos = computed(() => this.usuarios().filter(usu => !usu?.exentoSubidas));
   modulos = signal<Modulo[]>([]);
   tramosMGL = signal<TramoMGL[]>([]);
-  limiteSprintsContarSubidas: number = 5;
-  limiteSprintsVecesResponsable: number = 7;
+  limiteSprintsContarSubidas: number = 12;
+  limiteSprintsVecesResponsable: number = 12;
   limiteTramosContadosMGL: number = 20;
 
   constructor(private firestore: Firestore) {}
@@ -61,7 +61,7 @@ export class StorageService {
     if (!coleccion || !id) {
       throw new Error('Contraseña incorrecta');
     }
-  
+
     const ref = doc(this.firestore, coleccion, id);
     const snap = await getDoc(ref);
     return snap.exists();
@@ -86,7 +86,7 @@ export class StorageService {
   getDocumentByAddress(url: string): Observable<any> {
     const ruta = `herramientas-enaire/${url}`;
     const ref = doc(this.firestore, ruta);
-  
+
     return docData(ref, { idField: 'id' }).pipe(
       map((data: any) => this.tsToDate(data))
     );
@@ -105,7 +105,7 @@ export class StorageService {
    */
   setDocumentByAddress(url: string, data: any, editar: boolean = false): Promise<void> {
     let ruta = `herramientas-enaire/${url}`;
-  
+
     if (editar) {
       const docRef = doc(this.firestore, ruta);
       return setDoc(docRef, data, { merge: true }); // merge para que solo actualice, no setee directamente todo
@@ -117,10 +117,10 @@ export class StorageService {
     } else {
       // Si no hay ID, crea uno nuevo en la colección y le mete el id
       const colRef = collection(this.firestore, ruta);
-  
+
       const nuevoDocRef = doc(colRef);
       const dataConId = { ...data, id: nuevoDocRef.id };
-  
+
       return setDoc(nuevoDocRef, dataConId);
     }
   }
@@ -136,7 +136,7 @@ export class StorageService {
 
     return deleteDoc(ref);
   }
-  
+
   /*=====  Final de Database management  ======*/
 
   /**
@@ -144,15 +144,15 @@ export class StorageService {
    */
   private tsToDate(obj: any): any {
     if (obj === null || obj === undefined) return obj;
-  
+
     if (obj instanceof Timestamp) {
       return obj.toDate();
     }
-  
+
     if (Array.isArray(obj)) {
       return obj.map((item) => this.tsToDate(item));
     }
-  
+
     if (typeof obj === 'object') {
       const result: any = {};
       for (const key in obj) {
@@ -162,7 +162,7 @@ export class StorageService {
       }
       return result;
     }
-  
+
     return obj;
   }
 }
