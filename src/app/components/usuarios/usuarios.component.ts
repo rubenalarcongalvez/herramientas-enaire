@@ -4,7 +4,7 @@ import { FormGroup, FormsModule, ReactiveFormsModule, FormBuilder, Validators } 
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { StorageService } from '../../shared/services/storage.service';
-import { normalizarCadena, obtenerFechaCumpleString, ponerFocusInputPrincipal } from '../../shared/util/util';
+import { normalizarCadena, normalizarFechaNegocio, obtenerFechaCumpleString, ponerFocusInputPrincipal } from '../../shared/util/util';
 import { Usuario } from '../../shared/interfaces/usuario';
 import { ConfirmationService, MessageService, SortMeta, TableState } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -37,7 +37,7 @@ export class UsuariosComponent {
   limiteTramosContadosMGL = inject(StorageService).limiteTramosContadosMGL;
   usuarios = inject(StorageService).usuarios;
   usuariosTabla = computed(() => this.usuarios().map(u => {
-    const cumpleanosSinAnio: Date = u?.cumpleanos;
+    const cumpleanosSinAnio: Date = u?.cumpleanos ? new Date(u.cumpleanos) : u?.cumpleanos;
     if (cumpleanosSinAnio) {
       cumpleanosSinAnio.setFullYear(2025); // No nos interesa el anio
     }
@@ -102,15 +102,21 @@ export class UsuariosComponent {
     } else if (!this.formUsuario?.get('id')?.value && this.usuarios().find(usu => normalizarCadena(usu?.nombre) == normalizarCadena(this.formUsuario?.get('nombre')?.value))) {
       this.messageService.add({ severity: 'error', summary: 'Ya existe un usuario con el mismo nombre', detail: 'Ponga otro nombre', life: 3000 });
     } else {
+      const cumpleanos = this.formUsuario?.get('cumpleanos')?.value;
+      const vacaciones = this.formUsuario?.get('vacaciones')?.value || [];
+      const asuntosPropios = this.formUsuario?.get('asuntosPropios')?.value || [];
+      const enfermedad = this.formUsuario?.get('enfermedad')?.value || [];
+      const otrasAusencias = this.formUsuario?.get('otrasAusencias')?.value || [];
+
       this.storageService.setDocumentByAddress(`${sessionStorage.getItem('contrasenaAcceso')!}/usuarios/`, {
         id: this.formUsuario?.get('id')?.value,
         nombre: this.formUsuario?.get('nombre')?.value,
         alias: this.formUsuario?.get('alias')?.value,
-        cumpleanos: this.formUsuario?.get('cumpleanos')?.value,
-        vacaciones: this.formUsuario?.get('vacaciones')?.value || [],
-        asuntosPropios: this.formUsuario?.get('asuntosPropios')?.value || [],
-        enfermedad: this.formUsuario?.get('enfermedad')?.value || [],
-        otrasAusencias: this.formUsuario?.get('otrasAusencias')?.value || [],
+        cumpleanos: cumpleanos ? normalizarFechaNegocio(cumpleanos) : null,
+        vacaciones: vacaciones.map((fecha: Date) => normalizarFechaNegocio(fecha)),
+        asuntosPropios: asuntosPropios.map((fecha: Date) => normalizarFechaNegocio(fecha)),
+        enfermedad: enfermedad.map((fecha: Date) => normalizarFechaNegocio(fecha)),
+        otrasAusencias: otrasAusencias.map((fecha: Date) => normalizarFechaNegocio(fecha)),
 
         exentoSubidas: this.formUsuario?.get('exentoSubidas')?.value || false,
       } as Usuario).then((resp) => {

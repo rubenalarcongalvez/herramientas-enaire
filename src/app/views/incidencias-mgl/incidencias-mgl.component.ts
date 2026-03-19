@@ -6,7 +6,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TramoMGL } from '../../shared/interfaces/tramoMGL';
 import { StorageService } from '../../shared/services/storage.service';
 import { DialogModule } from 'primeng/dialog';
-import { normalizarCadena, ponerFocusInputPrincipal, obtenerFechaString } from '../../shared/util/util';
+import { normalizarCadena, normalizarFechaNegocio, ponerFocusInputPrincipal, obtenerFechaString } from '../../shared/util/util';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FloatLabel } from 'primeng/floatlabel';
 import { DatePicker } from 'primeng/datepicker';
@@ -64,9 +64,10 @@ export class IncidenciasMglComponent {
     } else if (this.tramosMGL().filter(tramo => tramo?.tramo != this.formTramo?.get('tramoAnterior')?.value)?.some(tramo => sonTramosIguales(tramo.tramo, this.formTramo?.get('tramo')?.value))) {
       this.messageService.add({ severity: 'error', summary: 'Ya existe un tramo con las mismas fechas', detail: 'Ponga otro rango de fechas', life: 3000 });
     } else {
+      const tramoActual = this.formTramo?.get('tramo')?.value || [];
       this.storageService.setDocumentByAddress(`${sessionStorage.getItem('contrasenaAcceso')!}/tramosMGL/`, {
         id: this.formTramo?.get('id')?.value,
-        tramo: this.formTramo?.get('tramo')?.value,
+        tramo: tramoActual.map((fecha: Date) => normalizarFechaNegocio(fecha)),
         usuariosEncargados: this.formTramo?.get('usuariosEncargados')?.value
       } as TramoMGL).then((resp) => {
         this.messageService.add({ severity: 'info', summary: 'Éxito', detail: this.formTramo?.get('id')?.value ? 'Cambios guardados con éxito' : 'Tramo añadido con éxito', life: 3000 });
@@ -126,14 +127,9 @@ export class IncidenciasMglComponent {
   fechaActualEntreTramo(tramo: TramoMGL): boolean {
     const [inicio, fin] = tramo.tramo;
 
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-
-    const inicioNormal = new Date(inicio);
-    inicioNormal.setHours(0, 0, 0, 0);
-
-    const finNormal = new Date(fin);
-    finNormal.setHours(0, 0, 0, 0);
+    const hoy = normalizarFechaNegocio(new Date());
+    const inicioNormal = normalizarFechaNegocio(inicio);
+    const finNormal = normalizarFechaNegocio(fin);
 
     return inicioNormal <= hoy && hoy <= finNormal;
   }

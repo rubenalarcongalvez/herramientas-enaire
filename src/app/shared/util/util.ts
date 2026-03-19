@@ -1,6 +1,30 @@
 import { Timestamp } from "@angular/fire/firestore";
 import { Usuario } from "../interfaces/usuario";
 
+const ZONA_FECHA_APP = 'Europe/Madrid';
+
+function obtenerPartesFechaEnZona(fecha: Date, timeZone: string = ZONA_FECHA_APP): { year: number; month: number; day: number } {
+  const partes = new Intl.DateTimeFormat('es-ES', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(fecha);
+
+  return {
+    year: Number(partes.find((p) => p.type === 'year')?.value),
+    month: Number(partes.find((p) => p.type === 'month')?.value),
+    day: Number(partes.find((p) => p.type === 'day')?.value),
+  };
+}
+
+function obtenerMesLargoEnZona(fecha: Date, timeZone: string = ZONA_FECHA_APP): string {
+  return new Intl.DateTimeFormat('es-ES', {
+    timeZone,
+    month: 'long'
+  }).format(fecha);
+}
+
 /**
  * Normaliza a las 12:00 para evitar desfases de día por zonas horarias.
  */
@@ -25,10 +49,10 @@ export function obtenerFechaString(fecha: Date | Timestamp): string {
   }
 
   const d: Date = fecha instanceof Date ? fecha : fecha.toDate();
-
-  const dia  = d.getDate().toString().padStart(2, '0');
-  const mes  = (d.getMonth() + 1).toString().padStart(2, '0'); // +1 porque Enero = 0
-  const año  = d.getFullYear();
+  const { day, month, year } = obtenerPartesFechaEnZona(d);
+  const dia = String(day).padStart(2, '0');
+  const mes = String(month).padStart(2, '0');
+  const año = year;
 
   return `${dia}/${mes}/${año}`;
 }
@@ -39,9 +63,9 @@ export function obtenerFechaCumpleString(fecha: Date | Timestamp): string {
   }
 
   const d: Date = fecha instanceof Date ? fecha : fecha?.toDate();
-
-  const dia  = d.getDate().toString().padStart(2, '0');
-  const mes  = d.toLocaleString('es-ES', { month: 'long' });
+  const { day } = obtenerPartesFechaEnZona(d);
+  const dia  = String(day).padStart(2, '0');
+  const mes  = obtenerMesLargoEnZona(d);
   const mesCapitalizado = mes.charAt(0).toLocaleUpperCase('es-ES') + mes.slice(1);
 
   return `${dia} de ${mesCapitalizado}`;
@@ -57,8 +81,10 @@ export function esMismoDia(a: Date | Timestamp | undefined | null, b: Date | Tim
   // Normaliza a Date.
   const d1: Date = a instanceof Date ? a : a.toDate();
   const d2: Date = b instanceof Date ? b : b.toDate();
+  const p1 = obtenerPartesFechaEnZona(d1);
+  const p2 = obtenerPartesFechaEnZona(d2);
 
-  return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+  return p1.year === p2.year && p1.month === p2.month && p1.day === p2.day;
 }
 
 export function esDiaLibre(usuario: Usuario | null | undefined, fechaActual: Date | Timestamp | null | undefined): boolean {
@@ -86,8 +112,10 @@ export function esMismoDiaCumple(a: Date | Timestamp | undefined | null, b: Date
   // Normaliza a Date.
   const d1: Date = a instanceof Date ? a : a.toDate();
   const d2: Date = b instanceof Date ? b : b.toDate();
+  const p1 = obtenerPartesFechaEnZona(d1);
+  const p2 = obtenerPartesFechaEnZona(d2);
 
-  return d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+  return p1.month === p2.month && p1.day === p2.day;
 }
 
 export function ponerFocusInputPrincipal() {
@@ -138,10 +166,11 @@ export function adaptarFechaACalendario(
     throw new Error('Fecha no válida');
   }
 
-  // 3. Formato YYYY-MM-DD con ceros delante
-  const año  = d.getFullYear();
-  const mes  = String(d.getMonth() + 1).padStart(2, '0'); // enero = 0
-  const día  = String(d.getDate()).padStart(2, '0');
+  // 3. Formato YYYY-MM-DD con ceros delante y zona fija
+  const { year, month, day } = obtenerPartesFechaEnZona(d);
+  const año  = year;
+  const mes  = String(month).padStart(2, '0');
+  const día  = String(day).padStart(2, '0');
 
   return `${año}-${mes}-${día}`;
 }
