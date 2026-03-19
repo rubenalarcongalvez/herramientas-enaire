@@ -1,6 +1,24 @@
 import { Timestamp } from "@angular/fire/firestore";
 import { Usuario } from "../interfaces/usuario";
 
+/**
+ * Normaliza a las 12:00 para evitar desfases de día por zonas horarias.
+ */
+export function normalizarFechaNegocio(input: Date | Timestamp | string | number): Date {
+  const fecha: Date = input instanceof Date
+    ? new Date(input.getTime())
+    : input instanceof Timestamp
+      ? input.toDate()
+      : new Date(input);
+
+  if (isNaN(fecha.getTime())) {
+    throw new Error('Fecha no válida');
+  }
+
+  fecha.setHours(12, 0, 0, 0);
+  return fecha;
+}
+
 export function obtenerFechaString(fecha: Date | Timestamp): string {
   if (!fecha) {
     return '';

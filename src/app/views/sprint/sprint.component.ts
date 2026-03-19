@@ -19,7 +19,7 @@ import { ElementoSubida, Subida } from '../../shared/interfaces/subida';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 
-import { esMismoDia, normalizarCadena, obtenerFechaString, ponerFocusInputPrincipal } from '../../shared/util/util';
+import { esMismoDia, normalizarCadena, normalizarFechaNegocio, obtenerFechaString, ponerFocusInputPrincipal } from '../../shared/util/util';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Timestamp } from '@angular/fire/firestore';
 import { FloatLabelModule } from 'primeng/floatlabel';
@@ -165,9 +165,9 @@ export class SprintComponent {
 
   abrirEditarSubida(subida: Subida) {
     this.formSubida?.get('entorno')?.setValue(subida?.entorno);
-    this.formSubida?.get('fechaSubida')?.setValue(subida?.fechaSubida);
+    this.formSubida?.get('fechaSubida')?.setValue(subida?.fechaSubida ? normalizarFechaNegocio(subida.fechaSubida) : null);
     this.formSubida?.get('horaSubida')?.setValue(subida?.horaSubida);
-    this.formSubida?.get('fechaSubidaAnterior')?.setValue(subida?.fechaSubida);
+    this.formSubida?.get('fechaSubidaAnterior')?.setValue(subida?.fechaSubida ? normalizarFechaNegocio(subida.fechaSubida) : null);
     this.formSubida?.get('responsable')?.setValue(subida?.responsable);
     this.formSubida?.get('idReferencia')?.setValue(subida?.idReferencia);
     this.formSubida?.get('elementosSubida')?.setValue(subida?.elementosSubida || []);
@@ -176,23 +176,29 @@ export class SprintComponent {
   }
 
   aplicarSubida() {
+    const fechaSubidaSeleccionada = this.formSubida.get('fechaSubida')?.value as Date | null;
+    const fechaSubidaAnterior = this.formSubida.get('fechaSubidaAnterior')?.value as Date | null;
+    const fechaSubidaNormalizada = fechaSubidaSeleccionada ? normalizarFechaNegocio(fechaSubidaSeleccionada) : null;
+
     if (this.formSubida?.invalid) {
       this.formSubida.markAllAsTouched();
+    } else if (!fechaSubidaNormalizada) {
+      this.messageService.add({ severity: 'error', summary: 'Atención', detail: 'La fecha de subida es obligatoria', life: 3000 });
       /* No puede coincidir con otra fecha, si ya tenia una fecha, esta queda excluida porque se modifica */
-    } else if ((this.formSubida?.get('fechaSubidaAnterior')?.value && (this.formSubida?.get('fechaSubidaAnterior')?.value != this.formSubida?.get('fechaSubida')?.value) && this.subidasSprint().some(subida => esMismoDia(subida?.fechaSubida, this.formSubida?.get('fechaSubida')?.value))) || (!this.formSubida?.get('fechaSubidaAnterior')?.value && this.subidasSprint().some(subida => esMismoDia(subida?.fechaSubida, this.formSubida?.get('fechaSubida')?.value)))) {
+    } else if ((fechaSubidaAnterior && !esMismoDia(fechaSubidaAnterior, fechaSubidaNormalizada) && this.subidasSprint().some(subida => esMismoDia(subida?.fechaSubida, fechaSubidaNormalizada))) || (!fechaSubidaAnterior && this.subidasSprint().some(subida => esMismoDia(subida?.fechaSubida, fechaSubidaNormalizada)))) {
       this.messageService.add({ severity: 'error', summary: 'Atención', detail: 'Ya hay una subida programada para esa fecha', life: 3000 });
     } else {
       // Hacemos los cambios en la subida
       /* Si estamos editando, lo debemos sustituir, si no, anadimos */
       let nuevasSubidas: Subida[] = [...this.subidasSprint()];
-      if (this.formSubida.get('fechaSubidaAnterior')?.value) {
+      if (fechaSubidaAnterior) {
         const subidaExistente = nuevasSubidas.find(subida =>
-          subida.fechaSubida == this.formSubida.get('fechaSubidaAnterior')?.value
+          esMismoDia(subida.fechaSubida, fechaSubidaAnterior)
         );
 
         if (subidaExistente) {
           subidaExistente.entorno = this.formSubida.get('entorno')?.value;
-          subidaExistente.fechaSubida = this.formSubida.get('fechaSubida')?.value;
+          subidaExistente.fechaSubida = fechaSubidaNormalizada;
           subidaExistente.horaSubida = this.formSubida.get('horaSubida')?.value || null;
           subidaExistente.responsable = this.formSubida.get('responsable')?.value;
           subidaExistente.idReferencia = subidaExistente.entorno === EntornoEnum.DES ? '' : this.formSubida.get('idReferencia')?.value;
@@ -203,7 +209,7 @@ export class SprintComponent {
       } else {
         nuevasSubidas.push({
           entorno: this.formSubida?.get('entorno')?.value,
-          fechaSubida: this.formSubida?.get('fechaSubida')?.value,
+          fechaSubida: fechaSubidaNormalizada,
           horaSubida: this.formSubida?.get('horaSubida')?.value || null,
           responsable: this.formSubida?.get('responsable')?.value,
           idReferencia: this.formSubida?.get('entorno')?.value == EntornoEnum.DES ? '' : this.formSubida?.get('idReferencia')?.value,
@@ -237,7 +243,7 @@ export class SprintComponent {
         rejectLabel: 'Cancelar',
         acceptLabel: 'Eliminar',
         accept: () => {
-          const subidasFiltradas = [...this.subidasSprint()].filter(subida => subida?.fechaSubida != fechaSubida);
+          const subidasFiltradas = [...this.subidasSprint()].filter(subida => !esMismoDia(subida?.fechaSubida, fechaSubida));
           this.sprint.set({
             ...this.sprint(),
             subidas: subidasFiltradas
@@ -287,7 +293,7 @@ export class SprintComponent {
       /* Si estamos editando, lo debemos sustituir, si no, anadimos, pero la subida siempre es en edicion */
       let nuevasSubidas: Subida[] = [...this.subidasSprint()];
       const subidaExistente = nuevasSubidas.find(subida =>
-        subida.fechaSubida == this.formElemento.get('fechaSubida')?.value
+        esMismoDia(subida.fechaSubida, this.formElemento.get('fechaSubida')?.value)
       );
 
       if (subidaExistente) {
@@ -347,7 +353,7 @@ export class SprintComponent {
 
   private esElementoDuplicado(): boolean {
     // Primero, obtenemos la subida correspondiente
-    let subidaEnlazada = computed<Subida>(() => this.subidasSprint().find(subida => subida?.fechaSubida == this.formElemento.get('fechaSubida')?.value)!);
+    let subidaEnlazada = computed<Subida>(() => this.subidasSprint().find(subida => esMismoDia(subida?.fechaSubida, this.formElemento.get('fechaSubida')?.value))!);
     const tipoActual = normalizarCadena(this.formElemento.get('tipo')?.value || '');
     const moduloActual = normalizarCadena(this.formElemento.get('moduloSubido')?.value || '');
 
@@ -381,7 +387,7 @@ export class SprintComponent {
         acceptLabel: 'Eliminar',
         accept: () => {
           const subidasActualizadas = this.subidasSprint().map(subida => {
-            if (subida.fechaSubida !== fechaSubida) {
+            if (!esMismoDia(subida.fechaSubida, fechaSubida)) {
               return subida
             }; // No toca
 
